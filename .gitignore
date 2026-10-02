@@ -1,0 +1,19 @@
+# Python
+server/.venv/
+__pycache__/
+.pytest_cache/
+.hypothesis/
+server/*.db
+server/.env
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/captures/
+*.iml
+# Comes from your own Firebase project; never commit it to a public repo.
+android/app/google-services.json
+*.egg-info/

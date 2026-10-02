@@ -1,0 +1,244 @@
+{
+  "about": "In-day rule test cases. server/tests/test_policy.py and android InDayPolicyTest both run every case, so the Python and Kotlin rules can't drift apart. Times are local HH:MM.",
+  "default_policy": {
+    "on_hard": {"scale_remaining_reps": 0.8, "delay_remaining_min": 30},
+    "end_day_after_hard_sets": 2,
+    "on_pain": "stop_exercise_today",
+    "min_gap_min": 45,
+    "window_end": "19:00",
+    "quiet_hours": ["21:30", "07:00"]
+  },
+  "cases": [
+    {
+      "name": "sample_day_full",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9},
+        {"ref": "s4", "at": "13:40", "target_reps": 9},
+        {"ref": "s5", "at": "15:30", "target_reps": 9},
+        {"ref": "s6", "at": "17:20", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "easy", "at": "09:26"},
+        {"ref": "s2", "rating": "solid", "at": "10:51"},
+        {"ref": "s3", "rating": "solid", "at": "12:13"},
+        {"ref": "s4", "rating": "hard", "at": "13:47"},
+        {"ref": "s5", "rating": "solid", "at": "16:04"},
+        {"ref": "s6", "rating": "easy", "at": "17:58"}
+      ],
+      "expected": {
+        "status": "complete",
+        "hard_sets": 1,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "easy"},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s3", "at": "12:10", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s4", "at": "13:40", "target_reps": 9, "status": "logged", "rating": "hard"},
+          {"ref": "s5", "at": "16:00", "target_reps": 7, "status": "logged", "rating": "solid"},
+          {"ref": "s6", "at": "17:50", "target_reps": 7, "status": "logged", "rating": "easy"}
+        ]
+      }
+    },
+    {
+      "name": "hard_set_trims_and_delays_the_rest",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9},
+        {"ref": "s4", "at": "13:40", "target_reps": 9},
+        {"ref": "s5", "at": "15:30", "target_reps": 9},
+        {"ref": "s6", "at": "17:20", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "easy", "at": "09:26"},
+        {"ref": "s2", "rating": "solid", "at": "10:51"},
+        {"ref": "s3", "rating": "solid", "at": "12:13"},
+        {"ref": "s4", "rating": "hard", "at": "13:47"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 1,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "easy"},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s3", "at": "12:10", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s4", "at": "13:40", "target_reps": 9, "status": "logged", "rating": "hard"},
+          {"ref": "s5", "at": "16:00", "target_reps": 7, "status": "pending", "rating": null},
+          {"ref": "s6", "at": "17:50", "target_reps": 7, "status": "pending", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "two_hard_sets_end_the_day_and_later_logs_are_ignored",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9},
+        {"ref": "s4", "at": "13:40", "target_reps": 9},
+        {"ref": "s5", "at": "15:30", "target_reps": 9},
+        {"ref": "s6", "at": "17:20", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "hard", "at": "09:25"},
+        {"ref": "s2", "rating": "hard", "at": "11:20"},
+        {"ref": "s3", "rating": "solid", "at": "12:45"}
+      ],
+      "expected": {
+        "status": "ended_hard",
+        "hard_sets": 2,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "hard"},
+          {"ref": "s2", "at": "11:15", "target_reps": 7, "status": "logged", "rating": "hard"},
+          {"ref": "s3", "at": "12:40", "target_reps": 7, "status": "dropped", "rating": null},
+          {"ref": "s4", "at": "14:10", "target_reps": 7, "status": "dropped", "rating": null},
+          {"ref": "s5", "at": "16:00", "target_reps": 7, "status": "dropped", "rating": null},
+          {"ref": "s6", "at": "17:50", "target_reps": 7, "status": "dropped", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "pain_stops_the_exercise",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9},
+        {"ref": "s4", "at": "13:40", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "solid", "at": "09:20"},
+        {"ref": "s2", "rating": "pain", "at": "10:50"}
+      ],
+      "expected": {
+        "status": "stopped_pain",
+        "hard_sets": 0,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "logged", "rating": "pain"},
+          {"ref": "s3", "at": "12:10", "target_reps": 9, "status": "dropped", "rating": null},
+          {"ref": "s4", "at": "13:40", "target_reps": 9, "status": "dropped", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "unlogged_earlier_sets_are_missed",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9},
+        {"ref": "s4", "at": "13:40", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s3", "rating": "solid", "at": "12:15"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 0,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "missed", "rating": null},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "missed", "rating": null},
+          {"ref": "s3", "at": "12:10", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s4", "at": "13:40", "target_reps": 9, "status": "pending", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "late_log_pushes_the_next_set",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9},
+        {"ref": "s3", "at": "12:10", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "solid", "at": "10:30"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 0,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s2", "at": "11:15", "target_reps": 9, "status": "pending", "rating": null},
+          {"ref": "s3", "at": "12:10", "target_reps": 9, "status": "pending", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "sets_pushed_past_window_end_are_dropped",
+      "policy_overrides": {"window_end": "18:00"},
+      "sets": [
+        {"ref": "s1", "at": "15:00", "target_reps": 8},
+        {"ref": "s2", "at": "16:00", "target_reps": 8},
+        {"ref": "s3", "at": "17:40", "target_reps": 8}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "hard", "at": "15:05"},
+        {"ref": "s2", "rating": "solid", "at": "16:31"}
+      ],
+      "expected": {
+        "status": "complete",
+        "hard_sets": 1,
+        "sets": [
+          {"ref": "s1", "at": "15:00", "target_reps": 8, "status": "logged", "rating": "hard"},
+          {"ref": "s2", "at": "16:30", "target_reps": 6, "status": "logged", "rating": "solid"},
+          {"ref": "s3", "at": "18:10", "target_reps": 6, "status": "dropped", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "skipped_set_changes_nothing",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "skipped", "at": "09:21"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 0,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "skipped"},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "pending", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "reps_never_drop_below_one",
+      "sets": [
+        {"ref": "s1", "at": "09:00", "target_reps": 1},
+        {"ref": "s2", "at": "10:00", "target_reps": 1}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "hard", "at": "09:01"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 1,
+        "sets": [
+          {"ref": "s1", "at": "09:00", "target_reps": 1, "status": "logged", "rating": "hard"},
+          {"ref": "s2", "at": "10:30", "target_reps": 1, "status": "pending", "rating": null}
+        ]
+      }
+    },
+    {
+      "name": "duplicate_and_unknown_logs_are_ignored",
+      "sets": [
+        {"ref": "s1", "at": "09:20", "target_reps": 9},
+        {"ref": "s2", "at": "10:45", "target_reps": 9}
+      ],
+      "logs": [
+        {"ref": "s1", "rating": "solid", "at": "09:20"},
+        {"ref": "s1", "rating": "hard", "at": "09:25"},
+        {"ref": "sX", "rating": "easy", "at": "09:30"}
+      ],
+      "expected": {
+        "status": "active",
+        "hard_sets": 0,
+        "sets": [
+          {"ref": "s1", "at": "09:20", "target_reps": 9, "status": "logged", "rating": "solid"},
+          {"ref": "s2", "at": "10:45", "target_reps": 9, "status": "pending", "rating": null}
+        ]
+      }
+    }
+  ]
+}

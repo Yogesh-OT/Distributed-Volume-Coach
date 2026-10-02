@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dumbbell. Notification icons must be a single colour on transparent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M2,10h2v4H2z M5,7h3v10H5z M8,11h8v2H8z M16,7h3v10h-3z M20,10h2v4h-2z" />
+</vector>
