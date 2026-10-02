@@ -95,6 +95,13 @@ Included:
 
 Not yet (later phases): weekly progression, the learned fatigue model and simulator, Health Connect, pull-ups, photos, and a session mode for other goals.
 
+## Known issues
+
+- **Set reminders can arrive late.** The app uses inexact alarms so it needs no special permission. On a test phone running Android API 36, Android gave these alarms up to a 1-hour delivery window. The fix is to ask for the *Alarms & reminders* permission and use exact alarms when it's granted.
+- **Debug builds default to the emulator's server address**, `http://10.0.2.2:8000`. On a real phone, change it to `http://127.0.0.1:8000` under *Server address*.
+
+First on-device test (Xiaomi, Android API 36): install, server connection, onboarding, max test, check-in, progress and account deletion all worked with no crashes. Set notifications, in-day logging, sync and the offline plan haven't been tested on a phone yet.
+
 ## Safety notes
 
 - 18+ only.
