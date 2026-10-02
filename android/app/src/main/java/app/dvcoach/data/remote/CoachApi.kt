@@ -1,5 +1,6 @@
 package app.dvcoach.data.remote
 
+import app.dvcoach.data.ServerConfig
 import app.dvcoach.data.auth.AuthTokenProvider
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -8,6 +9,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.HttpException
@@ -24,6 +26,9 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 interface CoachApi {
+    @GET("health")
+    suspend fun health(): HealthDto
+
     @POST("v1/onboarding")
     suspend fun onboard(@Body body: OnboardingDto): OnboardingResultDto
 
@@ -65,17 +70,25 @@ object Api {
         encodeDefaults = true
     }
 
-    fun create(baseUrl: String, tokens: AuthTokenProvider): CoachApi {
+    fun create(server: ServerConfig, tokens: AuthTokenProvider): CoachApi {
         val client = OkHttpClient.Builder()
             // A check-in that takes longer than this falls back to the offline planner.
             .callTimeout(10, TimeUnit.SECONDS)
             .addInterceptor { chain ->
+                // Read the address on every call, so changing it in the app takes effect at once.
+                val request = chain.request()
+                val target = server.baseUrl().toHttpUrlOrNull()
+                val url = if (target == null) {
+                    request.url
+                } else {
+                    request.url.newBuilder().scheme(target.scheme).host(target.host).port(target.port).build()
+                }
                 val token = runBlocking { tokens.token() }
-                chain.proceed(chain.request().newBuilder().header("Authorization", "Bearer $token").build())
+                chain.proceed(request.newBuilder().url(url).header("Authorization", "Bearer $token").build())
             }
             .build()
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl(server.baseUrl())
             .client(client)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()

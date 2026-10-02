@@ -105,6 +105,7 @@ fun ProgressScreen(repository: Repository, onRetest: () -> Unit) {
             ) { Text("Delete my account and data") }
             ErrorText(vm.deleteError)
         }
+        ServerAddressCard(repository)
     }
 
     if (confirmDelete) {

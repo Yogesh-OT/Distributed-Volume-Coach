@@ -113,6 +113,7 @@ fun OnboardingScreen(repository: Repository, modifier: Modifier = Modifier) {
             "Small sets of push-ups spread through your day, adjusted to how each one feels. A few questions first.",
             style = MaterialTheme.typography.bodyLarge,
         )
+        ServerAddressCard(repository)
 
         Section("Your goal") {
             RadioRow("More push-ups", vm.goal == "more_pushups") { vm.goal = "more_pushups" }

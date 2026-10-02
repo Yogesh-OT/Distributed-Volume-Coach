@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import app.dvcoach.data.Repository
+import app.dvcoach.data.ServerConfig
 import app.dvcoach.data.auth.AuthTokenProvider
 import app.dvcoach.data.auth.DevTokenProvider
 import app.dvcoach.data.auth.FirebaseTokenProvider
@@ -37,10 +38,13 @@ class AppContainer(context: Context) {
     private val tokens: AuthTokenProvider =
         if (BuildConfig.AUTH_MODE == "firebase") FirebaseTokenProvider() else DevTokenProvider(context)
 
+    private val server = ServerConfig(context, BuildConfig.API_BASE_URL, isEditable = BuildConfig.DEBUG)
+
     val repository = Repository(
         context = context.applicationContext,
         db = AppDatabase.build(context),
-        api = Api.create(BuildConfig.API_BASE_URL, tokens),
+        api = Api.create(server, tokens),
         scheduler = PromptScheduler(context.applicationContext),
+        server = server,
     )
 }

@@ -8,6 +8,13 @@ import kotlinx.serialization.Serializable
 // Field names follow the server's JSON (snake_case). See server/app/schemas.py.
 
 @Serializable
+data class HealthDto(
+    val status: String,
+    @SerialName("engine_version") val engineVersion: String,
+    @SerialName("auth_mode") val authMode: String,
+)
+
+@Serializable
 data class ProfileDto(
     val goal: String,
     @SerialName("training_months") val trainingMonths: Int,

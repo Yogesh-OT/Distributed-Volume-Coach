@@ -50,6 +50,29 @@ The tests cover the shared policy cases, the planner (including 2,000 random sch
 
 The Kotlin unit tests run the same shared policy cases as the Python tests: `gradle testDebugUnitTest`.
 
+### Try it on your Android phone
+
+Every push builds a test app (`app-debug.apk`) in GitHub Actions. To use it without Android Studio:
+
+1. **Get the app.** Open the repo's **Actions** tab, then the latest green run. Download **dv-coach-debug-apk** under *Artifacts* and unzip it.
+2. **Get adb.** Download Google's [SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools) and unzip them.
+3. **Turn on USB debugging.**
+   - On the phone, open *Settings → About phone* and tap *Build number* seven times.
+   - Then turn on *Settings → Developer options → USB debugging*.
+   - Plug the phone in and accept the prompt on the phone.
+4. **Install and connect**, from the platform-tools folder:
+   ```bash
+   adb devices                          # your phone should be listed as "device"
+   adb install -r path/to/app-debug.apk
+   adb reverse tcp:8000 tcp:8000        # the phone's 127.0.0.1:8000 now reaches your computer
+   ```
+5. **Start the server** as above. It only needs to listen on `127.0.0.1`.
+6. **Point the app at it.** Open DV Coach. In *Server address*, enter `http://127.0.0.1:8000` and tap **Save and test**.
+
+`adb reverse` lasts until the cable is unplugged or the phone restarts, so run it again after either. Each CI build is signed with a fresh debug key. To install a newer build over an older one, uninstall the old one first: `adb uninstall app.dvcoach`.
+
+Using Wi-Fi instead of USB means starting the server with `--host 0.0.0.0` and letting it through Windows Firewall. Do that only on a private network you trust, because dev mode accepts any sign-in.
+
 ### Release builds (Firebase sign-in)
 
 1. Create a Firebase project and enable **Anonymous** sign-in.

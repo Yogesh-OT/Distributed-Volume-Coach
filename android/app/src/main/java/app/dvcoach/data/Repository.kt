@@ -16,6 +16,7 @@ import app.dvcoach.data.remote.BodyProfileDto
 import app.dvcoach.data.remote.CheckinDto
 import app.dvcoach.data.remote.CoachApi
 import app.dvcoach.data.remote.FallbackPlanDto
+import app.dvcoach.data.remote.HealthDto
 import app.dvcoach.data.remote.MaxTestDto
 import app.dvcoach.data.remote.OnboardingDto
 import app.dvcoach.data.remote.ProfileDto
@@ -57,6 +58,7 @@ class Repository(
     private val db: AppDatabase,
     private val api: CoachApi,
     private val scheduler: PromptScheduler,
+    val server: ServerConfig,
     private val clock: Clock = Clock.systemDefaultZone(),
 ) {
     companion object {
@@ -195,6 +197,8 @@ class Repository(
     suspend fun bodyProfile(): ApiResult<BodyProfileDto> = apiCall { api.bodyProfile() }
 
     suspend fun progress(): ApiResult<ProgressDto> = apiCall { api.progress() }
+
+    suspend fun checkServer(): ApiResult<HealthDto> = apiCall { api.health() }
 
     // ---- Check-in and plans ----
 
