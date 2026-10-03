@@ -79,7 +79,7 @@ See `docs/ux-references.md`.
 - **Autostart:** the user says it's on, but `appops` still read `MIUIOP(10008): ignore`. Confirm by checking whether a sync or reminder works while the app is fully closed.
 - **The user's account:** a max of 20 standard push-ups (level 4) on 2026-10-03, so the next test at that level is on 2026-10-17. Trying it earlier showed the "14 days apart" message, which is correct. Streak: 1 day (3 Oct).
 - **The server is stopped.** Start it again for any phone test.
-- **Backups:** `server/dev.db.bak-*` (from before the level migration) and the phone app data in `D:\Androidackup\*.tar`.
+- **Backups:** `server/dev.db.bak-*` (from before the level migration) and the phone app data in `D:\Android\backup\*.tar`.
 
 ## Next up
 
