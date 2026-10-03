@@ -38,7 +38,7 @@ Project context, working agreements and where we left off. The README covers wha
 - The only check-in that day landed after the default 09:00–19:00 window, so the plan had no sets.
 - **Not yet exercised on the phone:** set notifications, in-day logging, sync and the offline fallback plan.
 
-## Session 2 (2026-10-03): built, needs checking on the phone
+## Session 2 (2026-10-03): on-time reminders and testing comfort
 
 - **On-time reminders.** The app now asks for `SCHEDULE_EXACT_ALARM` (*Alarms & reminders*).
   - When it's granted, `PromptScheduler` uses `setExactAndAllowWhileIdle`; otherwise inexact alarms.
@@ -46,7 +46,7 @@ Project context, working agreements and where we left off. The README covers wha
   - Check with `dumpsys alarm`: exact alarms show no `window=`.
 - **Server address default.** Debug builds default to `http://127.0.0.1:8000` on real phones and `10.0.2.2` on emulators.
 - **The Today screen** shows the training window with a **Change** button, which opens the new *Your day* screen. *Your day* uses `PUT /v1/profile`, and changes apply from the next check-in. The screen also explains "window has ended" plans.
-- **Reset today (debug only).** A button on the Progress screen calls `DELETE /v1/dev/days/{day}`, which is mounted only when `DVC_AUTH_MODE=dev`, and clears today's data on the phone too.
+- **Reset today (debug only).** A button under *Settings → Test tools* calls `DELETE /v1/dev/days/{day}`, which is mounted only when `DVC_AUTH_MODE=dev`, and clears today's data on the phone too.
 
 ## Session 2, second build: UI from the UX research
 
@@ -73,12 +73,21 @@ See `docs/ux-references.md`.
   - Today counts only once it's on plan.
 - **Declined for now:** the 14-day block map and rep counting with the phone's sensor.
 
+## Where we left off (2026-10-04, about 00:10)
+
+- **The phone runs v5** (`719d48e` and later docs commits). Its data is intact and permissions are granted: notifications, Alarms & reminders, and Battery saver set to No restrictions (DV Coach is on the battery whitelist).
+- **Autostart:** the user says it's on, but `appops` still read `MIUIOP(10008): ignore`. Confirm by checking whether a sync or reminder works while the app is fully closed.
+- **The user's account:** a max of 20 standard push-ups (level 4) on 2026-10-03, so the next test at that level is on 2026-10-17. Trying it earlier showed the "14 days apart" message, which is correct. Streak: 1 day (3 Oct).
+- **The server is stopped.** Start it again for any phone test.
+- **Backups:** `server/dev.db.bak-*` (from before the level migration) and the phone app data in `D:\Androidackup\*.tar`.
+
 ## Next up
 
-1. **Phone checks.**
-   - Verified on 2026-10-03: exact reminders (the 17:29 set fired at 17:29:09), in-app logging, Pain ending the day, and reset today.
-   - Still to check: the notification buttons (Done / Hard / Snooze), offline logging and later sync, and the offline fallback plan.
-2. **Streak and levels on the phone.** Verified on 2026-10-04: v5 installed over the existing app (fixed key), Room migration 1 → 2 ran on real data (`user_version` 2, plans and logs kept), and the app fetched the streak. Still to check by hand: the level picker, the streak line text and the guide's levels section.
+1. **Check by eye:** the level picker on the max test screen, the streak line on Today and the levels section in the push-up guide.
+2. **Full-day test.**
+   - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
+   - Check in once with the server off, to test the offline fallback plan.
+   - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
 3. **Then phase 2:**
    - Weekly progression and 14-day max tests.
    - The Hard-set model with the simulator.
