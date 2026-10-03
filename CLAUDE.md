@@ -78,7 +78,7 @@ See `docs/ux-references.md`.
 1. **Phone checks.**
    - Verified on 2026-10-03: exact reminders (the 17:29 set fired at 17:29:09), in-app logging, Pain ending the day, and reset today.
    - Still to check: the notification buttons (Done / Hard / Snooze), offline logging and later sync, and the offline fallback plan.
-2. **Check streak and levels on the phone.** This includes the first install over an existing app with the fixed key, and Room migration 1 → 2 running on real data.
+2. **Streak and levels on the phone.** Verified on 2026-10-04: v5 installed over the existing app (fixed key), Room migration 1 → 2 ran on real data (`user_version` 2, plans and logs kept), and the app fetched the streak. Still to check by hand: the level picker, the streak line text and the guide's levels section.
 3. **Then phase 2:**
    - Weekly progression and 14-day max tests.
    - The Hard-set model with the simulator.
