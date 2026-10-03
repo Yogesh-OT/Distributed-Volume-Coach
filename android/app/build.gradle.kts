@@ -26,6 +26,17 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            // A fixed key for test builds, so a new CI build installs over the old one and keeps
+            // its data. Debug-only and deliberately public; release builds need their own key.
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         debug {
             // 10.0.2.2 is your computer, as seen from the Android emulator. A real phone reaches

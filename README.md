@@ -70,7 +70,7 @@ Every push builds a test app (`app-debug.apk`) in GitHub Actions. To use it with
 6. **Check the connection.** Open DV Coach and tap **Save and test** under *Server address*. On a real phone it already says `http://127.0.0.1:8000`; on the emulator it says `http://10.0.2.2:8000`.
 7. **Allow on-time reminders.** On the Today screen, tap **Allow on-time reminders** and switch on *Alarms & reminders*. Without it, Android may hold set reminders back by up to an hour. *Settings → Reminders* shows the current state.
 
-`adb reverse` lasts until the cable is unplugged or the phone restarts, so run it again after either. Each CI build is signed with a fresh debug key. To install a newer build over an older one, uninstall the old one first: `adb uninstall app.dvcoach`.
+`adb reverse` lasts until the cable is unplugged or the phone restarts, so run it again after either. Test builds are signed with the fixed debug key in `android/app/debug.keystore`, so a newer build installs over the old one and keeps its data. That key is debug-only and deliberately public.
 
 **Xiaomi, Redmi and POCO phones** need three extra steps:
 - `adb install` is blocked unless *Install via USB* is on in Developer options. Instead, copy the APK to the phone and install it from File Manager.

@@ -26,7 +26,10 @@ Project context, working agreements and where we left off. The README covers wha
 - Xiaomi/Redmi `2406ERN9CI`, Android API 36, adb serial `92ca22e1`.
 - **Installing:** `adb install` fails with `INSTALL_FAILED_USER_RESTRICTED`, because Xiaomi's "Install via USB" is off.
   - Instead, `adb push` the APK to `/sdcard/Download/` and the user installs it from File Manager.
-  - Each CI build has a new debug signing key. Before installing a newer build, remove the old one with `adb uninstall app.dvcoach`.
+  - From commit "Fixed debug key, sync on open" onwards, debug builds use `android/app/debug.keystore`, so new builds install over old ones and keep their data.
+  - Builds from before that were signed with CI's random key, so switching needed one uninstall. App data was backed up and restored with `run-as app.dvcoach tar`.
+- **Autostart is off by default** on this phone: `appops` shows `MIUIOP(10008): ignore`. While the app is closed, MIUI then won't start it for WorkManager jobs, so a sync waited until the app was opened. Since that commit the app also syncs on every resume. Ask the user to turn Autostart on.
+- **Offline sync verified on 2026-10-03.** The 18:37 set was logged from the notification's Done button while the server was down, and uploaded once the app was opened.
 
 ## Status (2026-10-02)
 
