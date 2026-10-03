@@ -38,7 +38,11 @@ class AppContainer(context: Context) {
     private val tokens: AuthTokenProvider =
         if (BuildConfig.AUTH_MODE == "firebase") FirebaseTokenProvider() else DevTokenProvider(context)
 
-    private val server = ServerConfig(context, BuildConfig.API_BASE_URL, isEditable = BuildConfig.DEBUG)
+    private val server = ServerConfig(
+        context,
+        default = if (ServerConfig.isEmulator()) BuildConfig.API_BASE_URL else BuildConfig.DEVICE_API_BASE_URL,
+        isEditable = BuildConfig.DEBUG,
+    )
 
     val repository = Repository(
         context = context.applicationContext,

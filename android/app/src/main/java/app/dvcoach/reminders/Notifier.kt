@@ -67,6 +67,10 @@ object Notifier {
         NotificationManagerCompat.from(context).cancel(idFor(ref))
     }
 
+    fun cancelAllSetPrompts(context: Context) {
+        for (i in 1..PromptScheduler.MAX_SETS) cancelSetPrompt(context, "s$i")
+    }
+
     @SuppressLint("MissingPermission") // checked by canPost()
     fun showCheckinReminder(context: Context) {
         if (!canPost(context)) return

@@ -98,8 +98,15 @@ private fun MainScaffold(repository: Repository) {
         },
     ) { padding ->
         NavHost(navController = nav, startDestination = Tab.TODAY.route, modifier = Modifier.padding(padding)) {
-            composable(Tab.TODAY.route) { TodayScreen(repository, onCheckIn = { nav.navigate("checkin") }) }
+            composable(Tab.TODAY.route) {
+                TodayScreen(
+                    repository,
+                    onCheckIn = { nav.navigate("checkin") },
+                    onEditSchedule = { nav.navigate("schedule") },
+                )
+            }
             composable("checkin") { CheckInScreen(repository, onDone = { nav.popBackStack() }) }
+            composable("schedule") { ScheduleScreen(repository, onDone = { nav.popBackStack() }) }
             composable(Tab.PROGRESS.route) { ProgressScreen(repository, onRetest = { nav.navigate("maxtest") }) }
             composable("maxtest") { MaxTestScreen(repository, onDone = { nav.popBackStack() }) }
             composable(Tab.BODY.route) { BodyScreen(repository) }

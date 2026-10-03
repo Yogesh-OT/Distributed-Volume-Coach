@@ -10,7 +10,7 @@ from engine import ENGINE_VERSION
 
 from .config import Settings
 from .db import Base, make_engine
-from .routers import body, me, profile, training
+from .routers import body, dev, me, profile, training
 
 
 def create_app(settings: Settings | None = None, clock: Callable[[], dt.datetime] | None = None) -> FastAPI:
@@ -27,6 +27,8 @@ def create_app(settings: Settings | None = None, clock: Callable[[], dt.datetime
 
     for module in (profile, training, body, me):
         app.include_router(module.router)
+    if settings.auth_mode == "dev":
+        app.include_router(dev.router)
 
     @app.get("/health", tags=["ops"])
     def health():

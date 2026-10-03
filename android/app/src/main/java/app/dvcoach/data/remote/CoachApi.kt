@@ -21,6 +21,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -61,6 +62,10 @@ interface CoachApi {
 
     @DELETE("v1/me")
     suspend fun deleteAccount(): Response<Unit>
+
+    /** Only exists on a server running in dev mode. */
+    @DELETE("v1/dev/days/{day}")
+    suspend fun resetDay(@Path("day") day: String): Response<Unit>
 }
 
 object Api {

@@ -1,6 +1,7 @@
 package app.dvcoach.data
 
 import android.content.Context
+import android.os.Build
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /**
@@ -25,7 +26,13 @@ class ServerConfig(context: Context, private val default: String, val isEditable
         return null
     }
 
-    private companion object {
-        const val KEY = "base_url"
+    companion object {
+        private const val KEY = "base_url"
+
+        /** Good enough to pick a default address; not a security check. */
+        fun isEmulator(): Boolean =
+            Build.HARDWARE in setOf("ranchu", "goldfish") ||
+                Build.FINGERPRINT.startsWith("generic") ||
+                Build.PRODUCT.contains("sdk")
     }
 }

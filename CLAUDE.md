@@ -6,6 +6,7 @@ Project context, working agreements and where we left off. The README covers wha
 
 - Work in `D:\Distributed-Volume-Coach`. It has its own repo: `origin` is https://github.com/Yogesh-OT/Distributed-Volume-Coach.git, branch `main`.
 - **Commit and push to `origin/main` at every important milestone without asking**: a finished feature or phase, or a meaningful fix with tests passing. Don't commit half-done or failing work.
+- **Android can't be compiled here.** So push Android changes to a short-lived branch first and let CI compile them. Then fast-forward `main` and delete the branch.
 - The architecture page is https://claude.ai/artifact/3NHAmvSAMi8WSr2ww2Hhdb. Update it when the design changes.
 - The in-day rules exist twice, in `server/engine/policy.py` and `android/.../engine/InDayPolicy.kt`. Change both, and add a case to `shared/policy_vectors.json`. CI runs those cases against both.
 - The user is building this as their first portfolio project. Explain plainly, and say what was and wasn't verified.
@@ -34,19 +35,20 @@ Project context, working agreements and where we left off. The README covers wha
 - The only check-in that day landed after the default 09:00–19:00 window, so the plan had no sets.
 - **Not yet exercised on the phone:** set notifications, in-day logging, sync and the offline fallback plan.
 
+## Session 2 (2026-10-03): built, needs checking on the phone
+
+- **On-time reminders.** The app now asks for `SCHEDULE_EXACT_ALARM` (*Alarms & reminders*).
+  - When it's granted, `PromptScheduler` uses `setExactAndAllowWhileIdle`; otherwise inexact alarms.
+  - Granting it re-registers alarms. This happens through the permission-changed broadcast, and again when the Today screen comes back into view.
+  - Check with `dumpsys alarm`: exact alarms show no `window=`.
+- **Server address default.** Debug builds default to `http://127.0.0.1:8000` on real phones and `10.0.2.2` on emulators.
+- **The Today screen** shows the training window with a **Change** button, which opens the new *Your day* screen. *Your day* uses `PUT /v1/profile`, and changes apply from the next check-in. The screen also explains "window has ended" plans.
+- **Reset today (debug only).** A button on the Progress screen calls `DELETE /v1/dev/days/{day}`, which is mounted only when `DVC_AUTH_MODE=dev`, and clears today's data on the phone too.
+
 ## Next up
 
-1. **Reminder timing.**
-   - `setAndAllowWhileIdle` got a 1-hour delivery window on the test phone: `dumpsys alarm` showed `window=+1h` for the check-in reminder. Set prompts can be just as late.
-   - Fix: ask for *Alarms & reminders* (`SCHEDULE_EXACT_ALARM`, which the user grants). `USE_EXACT_ALARM` is limited by Play policy to alarm and calendar apps.
-   - Use `setExactAndAllowWhileIdle` when `canScheduleExactAlarms()`. Otherwise keep inexact alarms and tell the user prompts may be late.
-   - Then update the architecture page.
-2. **Debug builds:** default the server address to `http://127.0.0.1:8000` on real devices, and keep `10.0.2.2` only for emulators.
-3. **Testing comfort:**
-   - Show the training window on the Today screen.
-   - Explain "window has ended" plans better.
-   - Consider a debug-only "reset today".
-4. **Then phase 2:**
+1. **Full-day test on the phone:** set notifications, in-day logging, sync and the offline fallback plan. On Xiaomi, turn on Autostart and set Battery saver to *No restrictions* first.
+2. **Then phase 2:**
    - Weekly progression and 14-day max tests.
    - The Hard-set model with the simulator.
    - Health Connect sleep.

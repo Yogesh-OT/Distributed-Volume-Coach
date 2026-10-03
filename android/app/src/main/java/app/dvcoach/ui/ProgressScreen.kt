@@ -75,6 +75,20 @@ class ProgressViewModel(private val repository: Repository) : ViewModel() {
             if (result is ApiResult.Failed) deleteError = result.message
         }
     }
+
+    var resetMessage by mutableStateOf<String?>(null)
+        private set
+
+    fun resetToday() {
+        resetMessage = "Resetting…"
+        viewModelScope.launch {
+            resetMessage = when (val result = repository.resetToday()) {
+                is ApiResult.Ok -> "Today is reset. Check in again from the Today tab."
+                is ApiResult.Failed -> result.message
+            }
+            refresh()
+        }
+    }
 }
 
 @Composable
@@ -105,7 +119,17 @@ fun ProgressScreen(repository: Repository, onRetest: () -> Unit) {
             ) { Text("Delete my account and data") }
             ErrorText(vm.deleteError)
         }
-        ServerAddressCard(repository)
+        if (repository.server.isEditable) {
+            Section("Test tools") {
+                Text(
+                    "Reset today forgets today's check-in, plan and logged sets on this phone and the server, so you can check in again.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                OutlinedButton(onClick = vm::resetToday) { Text("Reset today") }
+                vm.resetMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+            }
+            ServerAddressCard(repository)
+        }
     }
 
     if (confirmDelete) {

@@ -191,3 +191,25 @@ def test_export_then_delete_account(client):
     assert client.get("/v1/profile", headers=ALICE).status_code == 404
     assert client.get("/v1/profile", headers=BOB).status_code == 200
     assert onboard(client).status_code == 201  # the same sign-in can start over
+
+
+def test_dev_reset_lets_a_day_be_planned_again(client):
+    ready_to_train(client)
+    ready_to_train(client, BOB)
+    client.post("/v1/checkins", json=CHECKIN, headers=ALICE)
+    client.post("/v1/checkins", json=CHECKIN, headers=BOB)
+    client.post("/v1/set-logs/batch", json={"logs": [log("s1", "solid", "09:50")]}, headers=ALICE)
+
+    assert client.delete(f"/v1/dev/days/{TODAY}", headers=ALICE).status_code == 204
+    assert client.get(f"/v1/plans/{TODAY}", headers=ALICE).status_code == 404
+    assert client.get("/v1/progress", headers=ALICE).json()["days"] == []
+
+    late = client.post("/v1/checkins", json={**CHECKIN, "local_time": "17:30"}, headers=ALICE)
+    assert late.status_code == 201 and len(late.json()["sets"]) == 1  # planned again, from the new check-in
+    assert client.get(f"/v1/plans/{TODAY}", headers=BOB).status_code == 200  # other users untouched
+
+
+def test_dev_routes_do_not_exist_outside_dev_mode():
+    settings = Settings(database_url="sqlite://", auth_mode="firebase", create_tables=True)
+    with TestClient(create_app(settings, clock=lambda: NOW)) as c:
+        assert c.delete(f"/v1/dev/days/{TODAY}", headers=ALICE).status_code == 404

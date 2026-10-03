@@ -1,5 +1,6 @@
 package app.dvcoach.reminders
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -113,7 +114,10 @@ class LogActionReceiver : BroadcastReceiver() {
     }
 }
 
-/** Alarms don't survive a reboot, and clock or time-zone changes move them. Re-register. */
+/**
+ * Alarms don't survive a reboot, and clock or time-zone changes move them. Re-register.
+ * Also re-register when "Alarms & reminders" is granted, so pending prompts become exact.
+ */
 class RescheduleReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action in HANDLED) runAsync(context) { it.rescheduleAll() }
@@ -125,6 +129,7 @@ class RescheduleReceiver : BroadcastReceiver() {
             Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
+            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
         )
     }
 }

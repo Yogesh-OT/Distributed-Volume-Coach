@@ -67,9 +67,17 @@ Every push builds a test app (`app-debug.apk`) in GitHub Actions. To use it with
    adb reverse tcp:8000 tcp:8000        # the phone's 127.0.0.1:8000 now reaches your computer
    ```
 5. **Start the server** as above. It only needs to listen on `127.0.0.1`.
-6. **Point the app at it.** Open DV Coach. In *Server address*, enter `http://127.0.0.1:8000` and tap **Save and test**.
+6. **Check the connection.** Open DV Coach and tap **Save and test** under *Server address*. On a real phone it already says `http://127.0.0.1:8000`; on the emulator it says `http://10.0.2.2:8000`.
+7. **Allow on-time reminders.** On the Today screen, tap **Allow on-time reminders** and switch on *Alarms & reminders*. Without it, Android may hold set reminders back by up to an hour.
 
 `adb reverse` lasts until the cable is unplugged or the phone restarts, so run it again after either. Each CI build is signed with a fresh debug key. To install a newer build over an older one, uninstall the old one first: `adb uninstall app.dvcoach`.
+
+**Xiaomi, Redmi and POCO phones** need three extra steps:
+- `adb install` is blocked unless *Install via USB* is on in Developer options. Instead, copy the APK to the phone and install it from File Manager.
+- For DV Coach, turn on **Autostart**.
+- Set **Battery saver** to *No restrictions*. Otherwise the system can stop reminders while the app is closed.
+
+**Test builds** have a **Reset today** button on the Progress screen. It forgets today's check-in, plan and sets, so you can check in again. It only works against a dev-mode server. To change your training window, tap **Change** next to it on the Today screen.
 
 Using Wi-Fi instead of USB means starting the server with `--host 0.0.0.0` and letting it through Windows Firewall. Do that only on a private network you trust, because dev mode accepts any sign-in.
 
@@ -87,7 +95,8 @@ Included:
 - Max test
 - Body measurements and profile card
 - Check-in that returns a plan
-- Inexact alarms and logging from notifications
+- Set reminders (exact when *Alarms & reminders* is allowed) and logging from notifications
+- Changing your daily schedule
 - In-day rules and the offline fallback plan
 - Sync
 - Progress chart
@@ -97,8 +106,7 @@ Not yet (later phases): weekly progression, the learned fatigue model and simula
 
 ## Known issues
 
-- **Set reminders can arrive late.** The app uses inexact alarms so it needs no special permission. On a test phone running Android API 36, Android gave these alarms up to a 1-hour delivery window. The fix is to ask for the *Alarms & reminders* permission and use exact alarms when it's granted.
-- **Debug builds default to the emulator's server address**, `http://10.0.2.2:8000`. On a real phone, change it to `http://127.0.0.1:8000` under *Server address*.
+- **Set reminders can still be late if *Alarms & reminders* is off.** The app then falls back to inexact alarms. On a test phone running Android API 36, Android gave those alarms up to a 1-hour delivery window. The Today screen asks for the permission.
 
 First on-device test (Xiaomi, Android API 36): install, server connection, onboarding, max test, check-in, progress and account deletion all worked with no crashes. Set notifications, in-day logging, sync and the offline plan haven't been tested on a phone yet.
 

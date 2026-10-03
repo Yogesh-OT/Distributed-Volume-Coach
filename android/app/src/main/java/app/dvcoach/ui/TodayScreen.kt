@@ -1,8 +1,11 @@
 package app.dvcoach.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -35,10 +38,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import app.dvcoach.core.Hhmm
 import app.dvcoach.data.Repository
+import app.dvcoach.data.local.LocalProfile
 import app.dvcoach.data.local.PlanEntity
 import app.dvcoach.engine.DayState
 import app.dvcoach.engine.DayStatus
@@ -54,24 +61,72 @@ class TodayViewModel(private val repository: Repository) : ViewModel() {
     val today: StateFlow<Repository.Today?> =
         repository.observeToday().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    val profile: StateFlow<LocalProfile?> =
+        repository.profile.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    var remindersOnTime by mutableStateOf(repository.remindersOnTime())
+        private set
+
     fun log(date: String, ref: String, rating: Rating) {
         viewModelScope.launch { repository.logSet(date, ref, rating) }
+    }
+
+    /** Called when the screen comes back, for example from the Alarms & reminders settings page. */
+    fun refreshReminders() {
+        val onTime = repository.remindersOnTime()
+        if (onTime && !remindersOnTime) viewModelScope.launch { repository.rescheduleAll() }
+        remindersOnTime = onTime
     }
 }
 
 @Composable
-fun TodayScreen(repository: Repository, onCheckIn: () -> Unit) {
+fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: () -> Unit) {
     val vm = repoViewModel(repository) { TodayViewModel(it) }
     val today by vm.today.collectAsStateWithLifecycle()
+    val profile by vm.profile.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshReminders() }
 
     ScreenColumn {
         Text("Today", style = MaterialTheme.typography.headlineMedium)
+        profile?.let { WindowLine(it, onEditSchedule) }
         NotificationPermissionCard()
+        if (!vm.remindersOnTime) ExactAlarmCard()
         val t = today
         when {
             t == null -> CircularProgressIndicator()
             t.plan == null -> CheckInCard(checkedIn = t.checkedIn, onCheckIn = onCheckIn)
-            else -> PlanSection(t.date, t.plan, t.day, onLog = vm::log)
+            else -> PlanSection(t.date, t.plan, t.day, profile, onLog = vm::log)
+        }
+    }
+}
+
+@Composable
+private fun WindowLine(profile: LocalProfile, onEditSchedule: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            "Training window ${profile.windowStart}–${profile.windowEnd}",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onEditSchedule) { Text("Change") }
+    }
+}
+
+@Composable
+private fun ExactAlarmCard() {
+    val context = LocalContext.current
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Get set reminders on time", style = MaterialTheme.typography.titleMedium)
+            Text("Without Alarms & reminders, Android can hold a set reminder back by up to an hour.")
+            Button(onClick = {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    context.startActivity(
+                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}"))
+                    )
+                }
+            }) { Text("Allow on-time reminders") }
         }
     }
 }
@@ -80,12 +135,11 @@ fun TodayScreen(repository: Repository, onCheckIn: () -> Unit) {
 private fun NotificationPermissionCard() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
     val context = LocalContext.current
-    var granted by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-        )
-    }
+    fun check() = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+        PackageManager.PERMISSION_GRANTED
+    var granted by remember { mutableStateOf(check()) }
+    // Also re-check on return, in case it was turned on in Settings.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { granted = check() }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted = it }
     if (granted) return
 
@@ -114,11 +168,25 @@ private fun CheckInCard(checkedIn: Boolean, onCheckIn: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PlanSection(date: String, plan: PlanEntity, day: DayState?, onLog: (String, String, Rating) -> Unit) {
+private fun PlanSection(
+    date: String,
+    plan: PlanEntity,
+    day: DayState?,
+    profile: LocalProfile?,
+    onLog: (String, String, Rating) -> Unit,
+) {
     Text(plan.reason, style = MaterialTheme.typography.bodyLarge)
     if (plan.source == "fallback") Banner("Offline plan. It syncs when you're back online.")
     if (plan.kind == "mobility") {
         Banner("Rest day: gentle mobility only.")
+        return
+    }
+    if (plan.kind == "window_passed") {
+        val window = profile?.let { " (${it.windowStart}–${it.windowEnd})" } ?: ""
+        val reminder = profile?.let {
+            " Tomorrow's check-in reminder comes at ${Hhmm.format((Hhmm.toMinutes(it.wakeTime) + 15) % Hhmm.MINUTES_PER_DAY)}."
+        } ?: ""
+        Banner("You checked in after your training window$window, so there are no sets today.$reminder If your days look different, tap Change above.")
         return
     }
     if (day == null || day.sets.isEmpty()) return

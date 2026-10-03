@@ -39,7 +39,7 @@ fun ServerAddressCard(repository: Repository) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Server address (test builds only)", style = MaterialTheme.typography.titleSmall)
             Text(
-                "Emulator: http://10.0.2.2:8000. Phone over USB with adb reverse: http://127.0.0.1:8000.",
+                "Phone over USB (after adb reverse tcp:8000 tcp:8000): http://127.0.0.1:8000. Emulator: http://10.0.2.2:8000.",
                 style = MaterialTheme.typography.bodySmall,
             )
             OutlinedTextField(

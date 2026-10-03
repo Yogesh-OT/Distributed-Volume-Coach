@@ -63,11 +63,20 @@ abstract class PlanDao {
     @Query("DELETE FROM planned_sets WHERE date = :date AND exercise = :exercise")
     abstract suspend fun deleteSets(date: String, exercise: String)
 
+    @Query("DELETE FROM plans WHERE date = :date AND exercise = :exercise")
+    abstract suspend fun deletePlan(date: String, exercise: String)
+
     @Transaction
     open suspend fun replace(plan: PlanEntity, sets: List<PlannedSetEntity>) {
         deleteSets(plan.date, plan.exercise)
         upsertPlan(plan)
         upsertSets(sets)
+    }
+
+    @Transaction
+    open suspend fun deleteDay(date: String, exercise: String) {
+        deleteSets(date, exercise)
+        deletePlan(date, exercise)
     }
 }
 
@@ -87,6 +96,9 @@ interface LogDao {
 
     @Query("UPDATE set_logs SET synced = 1 WHERE id IN (:ids)")
     suspend fun markSynced(ids: List<String>)
+
+    @Query("DELETE FROM set_logs WHERE date = :date AND exercise = :exercise")
+    suspend fun deleteForDay(date: String, exercise: String)
 }
 
 @Dao
@@ -99,4 +111,7 @@ interface CheckinDao {
 
     @Upsert
     suspend fun upsert(checkin: CheckinEntity)
+
+    @Query("DELETE FROM checkins WHERE date = :date")
+    suspend fun delete(date: String)
 }

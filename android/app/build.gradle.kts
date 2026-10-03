@@ -28,8 +28,10 @@ android {
 
     buildTypes {
         debug {
-            // 10.0.2.2 is your computer, as seen from the Android emulator.
+            // 10.0.2.2 is your computer, as seen from the Android emulator. A real phone reaches
+            // it at 127.0.0.1 over USB after `adb reverse tcp:8000 tcp:8000`.
             buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "DEVICE_API_BASE_URL", "\"http://127.0.0.1:8000/\"")
             buildConfigField("String", "AUTH_MODE", "\"dev\"")
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
@@ -37,6 +39,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"") // set before release
+            buildConfigField("String", "DEVICE_API_BASE_URL", "\"https://api.example.com/\"")
             buildConfigField("String", "AUTH_MODE", "\"firebase\"")
             manifestPlaceholders["usesCleartextTraffic"] = "false"
         }

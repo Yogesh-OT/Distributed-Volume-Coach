@@ -169,11 +169,34 @@ class Repository(
         clearanceConfirmed = clearanceConfirmed,
     )
 
-    suspend fun confirmClearance(): ApiResult<Unit> {
+    suspend fun confirmClearance(): ApiResult<Unit> = updateProfile { it.copy(clearanceConfirmed = true) }
+
+    /** Changes apply from the next check-in; today's plan keeps the window it was made with. */
+    suspend fun updateSchedule(
+        wakeTime: String,
+        windowStart: String,
+        windowEnd: String,
+        quietStart: String,
+        quietEnd: String,
+        promptLimit: Int,
+    ): ApiResult<Unit> = updateProfile {
+        it.copy(
+            wakeTime = wakeTime,
+            windowStart = windowStart,
+            windowEnd = windowEnd,
+            quietStart = quietStart,
+            quietEnd = quietEnd,
+            promptLimit = promptLimit,
+        )
+    }
+
+    /** Sends a changed profile; the server stores it as a new version and checks it. */
+    private suspend fun updateProfile(change: (ProfileDto) -> ProfileDto): ApiResult<Unit> {
         val local = profileDao.get() ?: return ApiResult.Failed("Finish onboarding first.")
-        return when (val result = apiCall { api.updateProfile(local.toDto().copy(clearanceConfirmed = true)) }) {
+        return when (val result = apiCall { api.updateProfile(change(local.toDto())) }) {
             is ApiResult.Ok -> {
-                profileDao.upsert(local.copy(clearanceConfirmed = true))
+                saveProfile(local.timezone, result.value)
+                scheduleCheckinReminder()
                 ApiResult.Ok(Unit)
             }
             is ApiResult.Failed -> result
@@ -199,6 +222,27 @@ class Repository(
     suspend fun progress(): ApiResult<ProgressDto> = apiCall { api.progress() }
 
     suspend fun checkServer(): ApiResult<HealthDto> = apiCall { api.health() }
+
+    /** False when Android may deliver set prompts up to an hour late. */
+    fun remindersOnTime(): Boolean = scheduler.canScheduleExact()
+
+    /** Test builds only: forget today's check-in, plan and sets here and on a dev-mode server. */
+    suspend fun resetToday(): ApiResult<Unit> {
+        val date = today().toString()
+        val result = apiCall {
+            val response = api.resetDay(date)
+            if (!response.isSuccessful) throw HttpException(response)
+        }
+        if (result is ApiResult.Ok) {
+            scheduler.cancelSets()
+            Notifier.cancelAllSetPrompts(context)
+            logDao.deleteForDay(date, EXERCISE)
+            planDao.deleteDay(date, EXERCISE)
+            checkinDao.delete(date)
+            scheduleCheckinReminder()
+        }
+        return result
+    }
 
     // ---- Check-in and plans ----
 
