@@ -45,10 +45,25 @@ Project context, working agreements and where we left off. The README covers wha
 - **The Today screen** shows the training window with a **Change** button, which opens the new *Your day* screen. *Your day* uses `PUT /v1/profile`, and changes apply from the next check-in. The screen also explains "window has ended" plans.
 - **Reset today (debug only).** A button on the Progress screen calls `DELETE /v1/dev/days/{day}`, which is mounted only when `DVC_AUTH_MODE=dev`, and clears today's data on the phone too.
 
+## Session 2, second build: UI from the UX research
+
+See `docs/ux-references.md`.
+
+- **The Today hero card** shows one main action: check in, the next set (big rep count, time and "in 25 min") or the day's outcome. It also shows a progress bar and a 7-day week strip (trained / rest day / checked in).
+- **The next set's buttons unlock 10 minutes before it's due**, with "Do it now anyway" behind a confirmation.
+- **Pain asks how many reps were done**, instead of always logging 0.
+- **A "How to do a push-up" sheet** opens from the hero card.
+- **A new Settings tab** holds your day, the reminder status for notifications and on-time reminders (plus a Xiaomi Autostart tip), account deletion and test tools. Delete and Reset moved out of Progress.
+- **Body form errors name the field**, and values are range-checked on the phone. Server validation errors are prefixed with the field name too.
+- **The server reason now says "1 set"**, not "1 sets".
+
 ## Next up
 
-1. **Full-day test on the phone:** set notifications, in-day logging, sync and the offline fallback plan. On Xiaomi, turn on Autostart and set Battery saver to *No restrictions* first.
-2. **Then phase 2:**
+1. **Phone checks.**
+   - Verified on 2026-10-03: exact reminders (the 17:29 set fired at 17:29:09), in-app logging, Pain ending the day, and reset today.
+   - Still to check: the notification buttons (Done / Hard / Snooze), offline logging and later sync, and the offline fallback plan.
+2. **Decisions waiting on the user:** the streak, push-up levels, the 14-day block map and rep counting with the phone's sensor.
+3. **Then phase 2:**
    - Weekly progression and 14-day max tests.
    - The Hard-set model with the simulator.
    - Health Connect sleep.

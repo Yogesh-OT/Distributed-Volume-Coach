@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +70,7 @@ private enum class Tab(val route: String, val label: String, val icon: ImageVect
     TODAY("today", "Today", Icons.Filled.Home),
     PROGRESS("progress", "Progress", Icons.Filled.DateRange),
     BODY("body", "Body", Icons.Filled.Person),
+    SETTINGS("settings", "Settings", Icons.Filled.Settings),
 }
 
 @Composable
@@ -110,6 +112,9 @@ private fun MainScaffold(repository: Repository) {
             composable(Tab.PROGRESS.route) { ProgressScreen(repository, onRetest = { nav.navigate("maxtest") }) }
             composable("maxtest") { MaxTestScreen(repository, onDone = { nav.popBackStack() }) }
             composable(Tab.BODY.route) { BodyScreen(repository) }
+            composable(Tab.SETTINGS.route) {
+                SettingsScreen(repository, onEditSchedule = { nav.navigate("schedule") })
+            }
         }
     }
 }

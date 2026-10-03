@@ -5,19 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,8 +44,6 @@ sealed interface ProgressUi {
 class ProgressViewModel(private val repository: Repository) : ViewModel() {
     var state by mutableStateOf<ProgressUi>(ProgressUi.Loading)
         private set
-    var deleteError by mutableStateOf<String?>(null)
-        private set
 
     val today: LocalDate get() = repository.today()
 
@@ -67,34 +60,11 @@ class ProgressViewModel(private val repository: Repository) : ViewModel() {
             }
         }
     }
-
-    /** On success the cleared profile sends the app back to onboarding. */
-    fun deleteAccount() {
-        viewModelScope.launch {
-            val result = repository.deleteAccount()
-            if (result is ApiResult.Failed) deleteError = result.message
-        }
-    }
-
-    var resetMessage by mutableStateOf<String?>(null)
-        private set
-
-    fun resetToday() {
-        resetMessage = "Resetting…"
-        viewModelScope.launch {
-            resetMessage = when (val result = repository.resetToday()) {
-                is ApiResult.Ok -> "Today is reset. Check in again from the Today tab."
-                is ApiResult.Failed -> result.message
-            }
-            refresh()
-        }
-    }
 }
 
 @Composable
 fun ProgressScreen(repository: Repository, onRetest: () -> Unit) {
     val vm = repoViewModel(repository) { ProgressViewModel(it) }
-    var confirmDelete by remember { mutableStateOf(false) }
 
     ScreenColumn {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -106,45 +76,6 @@ fun ProgressScreen(repository: Repository, onRetest: () -> Unit) {
             is ProgressUi.Failed -> ErrorText(state.message)
             is ProgressUi.Loaded -> ProgressContent(state.progress, vm.today, onRetest)
         }
-
-        HorizontalDivider()
-        Section("Account") {
-            Text(
-                "Delete your account and everything stored about you, on the server and on this phone.",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            OutlinedButton(
-                onClick = { confirmDelete = true },
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-            ) { Text("Delete my account and data") }
-            ErrorText(vm.deleteError)
-        }
-        if (repository.server.isEditable) {
-            Section("Test tools") {
-                Text(
-                    "Reset today forgets today's check-in, plan and logged sets on this phone and the server, so you can check in again.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                OutlinedButton(onClick = vm::resetToday) { Text("Reset today") }
-                vm.resetMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-            }
-            ServerAddressCard(repository)
-        }
-    }
-
-    if (confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete everything?") },
-            text = { Text("This removes your profile, plans and logs for good. It can't be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmDelete = false
-                    vm.deleteAccount()
-                }) { Text("Delete") }
-            },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
-        )
     }
 }
 

@@ -48,7 +48,38 @@ class BodyViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
+    /** Per-field problems found before sending, keyed by field name. */
+    var fieldErrors by mutableStateOf<Map<String, String>>(emptyMap())
+        private set
+
     fun save() {
+        val values = mapOf(
+            "height" to height,
+            "weight" to weight,
+            "armSpan" to armSpan,
+            "waist" to waist,
+            "wrist" to wrist,
+        )
+        // Same limits as the server (server/app/schemas.py), checked here so errors name the field.
+        fieldErrors = values.mapNotNull { (key, text) ->
+            if (text.isBlank()) return@mapNotNull null
+            val (min, max) = RANGES.getValue(key)
+            val number = text.toDoubleOrNull()
+            if (number == null || number < min || number > max) {
+                key to "Enter a number from ${min.toInt()} to ${max.toInt()}"
+            } else {
+                null
+            }
+        }.toMap()
+        if (fieldErrors.isNotEmpty()) {
+            error = null
+            return
+        }
+        if (values.values.all { it.isBlank() }) {
+            error = "Enter at least one measurement."
+            return
+        }
+
         val measurements = BodyMeasurementDto(
             measuredOn = "", // the repository fills in today
             heightCm = height.toDoubleOrNull(),
@@ -57,12 +88,6 @@ class BodyViewModel(private val repository: Repository) : ViewModel() {
             waistCm = waist.toDoubleOrNull(),
             wristCm = wrist.toDoubleOrNull(),
         )
-        with(measurements) {
-            if (listOf(heightCm, weightKg, armSpanCm, waistCm, wristCm).all { it == null }) {
-                error = "Enter at least one measurement."
-                return
-            }
-        }
         busy = true
         viewModelScope.launch {
             when (val result = repository.addMeasurements(measurements)) {
@@ -80,6 +105,16 @@ class BodyViewModel(private val repository: Repository) : ViewModel() {
             busy = false
         }
     }
+
+    private companion object {
+        val RANGES = mapOf(
+            "height" to (120.0 to 230.0),
+            "weight" to (30.0 to 250.0),
+            "armSpan" to (100.0 to 250.0),
+            "waist" to (40.0 to 200.0),
+            "wrist" to (10.0 to 30.0),
+        )
+    }
 }
 
 @Composable
@@ -96,14 +131,27 @@ fun BodyScreen(repository: Repository) {
                     "These describe your body. They never change today's plan.",
                 style = MaterialTheme.typography.bodySmall,
             )
-            NumberField("Height (cm)", vm.height, { vm.height = it }, decimal = true, supporting = "Against a wall, no shoes")
-            NumberField("Weight (kg)", vm.weight, { vm.weight = it }, decimal = true, supporting = "In the morning, before eating")
+            NumberField(
+                "Height (cm)", vm.height, { vm.height = it }, decimal = true,
+                supporting = "Against a wall, no shoes", error = vm.fieldErrors["height"],
+            )
+            NumberField(
+                "Weight (kg)", vm.weight, { vm.weight = it }, decimal = true,
+                supporting = "In the morning, before eating", error = vm.fieldErrors["weight"],
+            )
             NumberField(
                 "Arm span (cm)", vm.armSpan, { vm.armSpan = it }, decimal = true,
-                supporting = "Arms straight out along a wall, fingertip to fingertip",
+                supporting = "Arms straight out along a wall, fingertip to fingertip. Usually close to your height.",
+                error = vm.fieldErrors["armSpan"],
             )
-            NumberField("Waist (cm)", vm.waist, { vm.waist = it }, decimal = true, supporting = "Tape at the navel, after breathing out")
-            NumberField("Wrist (cm, optional)", vm.wrist, { vm.wrist = it }, decimal = true, supporting = "Just above the wrist bone")
+            NumberField(
+                "Waist (cm)", vm.waist, { vm.waist = it }, decimal = true,
+                supporting = "Tape around your middle at the navel, after breathing out", error = vm.fieldErrors["waist"],
+            )
+            NumberField(
+                "Wrist (cm, optional)", vm.wrist, { vm.wrist = it }, decimal = true,
+                supporting = "Around the wrist, just above the bone. Usually 14–20 cm.", error = vm.fieldErrors["wrist"],
+            )
             ErrorText(vm.error)
             Button(onClick = vm::save, enabled = !vm.busy, modifier = Modifier.fillMaxWidth()) {
                 Text(if (vm.busy) "Saving…" else "Save")

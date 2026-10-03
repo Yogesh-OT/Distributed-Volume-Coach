@@ -70,6 +70,7 @@ def test_late_check_in_fits_fewer_sets_and_says_why():
     plan = build_plan(replace(SAMPLE, checkin_time="17:30"))
     assert len(plan.sets) == 1
     assert plan.sets[0].at >= "17:45"
+    assert ": 1 set of 9 (" in plan.reason
     assert plan.reason.endswith("5 fewer than usual because of the late check-in.")
 
 

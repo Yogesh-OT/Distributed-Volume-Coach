@@ -68,7 +68,7 @@ Every push builds a test app (`app-debug.apk`) in GitHub Actions. To use it with
    ```
 5. **Start the server** as above. It only needs to listen on `127.0.0.1`.
 6. **Check the connection.** Open DV Coach and tap **Save and test** under *Server address*. On a real phone it already says `http://127.0.0.1:8000`; on the emulator it says `http://10.0.2.2:8000`.
-7. **Allow on-time reminders.** On the Today screen, tap **Allow on-time reminders** and switch on *Alarms & reminders*. Without it, Android may hold set reminders back by up to an hour.
+7. **Allow on-time reminders.** On the Today screen, tap **Allow on-time reminders** and switch on *Alarms & reminders*. Without it, Android may hold set reminders back by up to an hour. *Settings → Reminders* shows the current state.
 
 `adb reverse` lasts until the cable is unplugged or the phone restarts, so run it again after either. Each CI build is signed with a fresh debug key. To install a newer build over an older one, uninstall the old one first: `adb uninstall app.dvcoach`.
 
@@ -77,7 +77,7 @@ Every push builds a test app (`app-debug.apk`) in GitHub Actions. To use it with
 - For DV Coach, turn on **Autostart**.
 - Set **Battery saver** to *No restrictions*. Otherwise the system can stop reminders while the app is closed.
 
-**Test builds** have a **Reset today** button on the Progress screen. It forgets today's check-in, plan and sets, so you can check in again. It only works against a dev-mode server. To change your training window, tap **Change** next to it on the Today screen.
+**Test builds** have a **Reset today** button under *Settings → Test tools*. It forgets today's check-in, plan and sets, so you can check in again. It only works against a dev-mode server. To change your training window, tap **Change** next to it on the Today screen, or use *Settings → Change your day*.
 
 Using Wi-Fi instead of USB means starting the server with `--host 0.0.0.0` and letting it through Windows Firewall. Do that only on a private network you trust, because dev mode accepts any sign-in.
 

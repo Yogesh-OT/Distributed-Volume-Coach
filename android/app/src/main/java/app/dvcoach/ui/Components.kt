@@ -102,7 +102,9 @@ fun NumberField(
     modifier: Modifier = Modifier,
     decimal: Boolean = false,
     supporting: String? = null,
+    error: String? = null,
 ) {
+    val helper = error ?: supporting
     OutlinedTextField(
         value = value,
         onValueChange = { raw ->
@@ -110,8 +112,9 @@ fun NumberField(
             if ((if (decimal) DECIMAL else WHOLE).matches(text)) onChange(text)
         },
         label = { Text(label) },
-        supportingText = if (supporting != null) {
-            { Text(supporting) }
+        isError = error != null,
+        supportingText = if (helper != null) {
+            { Text(helper) }
         } else {
             null
         },

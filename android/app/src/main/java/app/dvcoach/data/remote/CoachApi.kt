@@ -132,12 +132,36 @@ private fun parseError(e: HttpException): ApiResult.Failed {
             code = detail["code"]?.jsonPrimitive?.contentOrNull,
             nextAllowed = detail["next_allowed"]?.jsonPrimitive?.contentOrNull,
         )
-        // FastAPI validation errors: [{"msg": "..."}]
-        is JsonArray -> ApiResult.Failed(
-            message = detail.firstOrNull()?.jsonObject?.get("msg")?.jsonPrimitive?.contentOrNull
-                ?.removePrefix("Value error, ") ?: fallback.message,
-            code = "invalid",
-        )
+        // FastAPI validation errors: [{"loc": ["body", "arm_span_cm"], "msg": "..."}]
+        is JsonArray -> {
+            val first = detail.firstOrNull() as? JsonObject
+            val message = first?.get("msg")?.jsonPrimitive?.contentOrNull?.let(::friendlyMessage) ?: fallback.message
+            val field = (first?.get("loc") as? JsonArray)?.lastOrNull()?.jsonPrimitive?.contentOrNull?.let(::fieldLabel)
+            ApiResult.Failed(message = if (field != null) "$field: $message" else message, code = "invalid")
+        }
         else -> fallback
     }
 }
+
+private val FIELD_LABELS = mapOf(
+    "height_cm" to "Height",
+    "weight_kg" to "Weight",
+    "arm_span_cm" to "Arm span",
+    "waist_cm" to "Waist",
+    "wrist_cm" to "Wrist",
+    "training_months" to "Months of training",
+    "birth_year" to "Birth year",
+    "prompt_limit" to "Prompts a day",
+    "reps" to "Reps",
+)
+
+/** A readable name for the field an error is about, or null for errors about the whole form. */
+private fun fieldLabel(name: String): String? = when {
+    name == "body" || name.all { it.isDigit() } -> null
+    else -> FIELD_LABELS[name] ?: name.replace('_', ' ').replaceFirstChar { it.uppercase() }
+}
+
+private fun friendlyMessage(msg: String): String = msg
+    .removePrefix("Value error, ")
+    .replace(Regex("^Input should be greater than or equal to (\\S+)$"), "must be at least $1")
+    .replace(Regex("^Input should be less than or equal to (\\S+)$"), "must be at most $1")

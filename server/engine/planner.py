@@ -98,7 +98,8 @@ def build_plan(inp: PlannerInput) -> Plan:
     times = spread(start, available, count, policy.min_gap_min, random.Random(inp.seed))
     sets = [PlannedSet(ref=f"s{i + 1}", at=to_hhmm(t), target_reps=reps) for i, t in enumerate(times)]
 
-    reason = f"{summary}: {count} sets of {reps} ({round_half_up(load * 100)}% of your {inp.max_reps}-rep max)."
+    sets_word = "set" if count == 1 else "sets"
+    reason = f"{summary}: {count} {sets_word} of {reps} ({round_half_up(load * 100)}% of your {inp.max_reps}-rep max)."
     if count < wanted:
         reason += f" {wanted - count} fewer than usual because of the late check-in."
     return plan(PlanKind.TRAINING, sets, reason)

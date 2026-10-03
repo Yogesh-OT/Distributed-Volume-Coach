@@ -45,6 +45,9 @@ abstract class PlanDao {
     )
     abstract suspend fun latestWithSets(exercise: String, before: String): PlanEntity?
 
+    @Query("SELECT * FROM plans WHERE exercise = :exercise AND date BETWEEN :from AND :to")
+    abstract fun observePlansBetween(exercise: String, from: String, to: String): Flow<List<PlanEntity>>
+
     @Query("SELECT * FROM plans WHERE source = 'fallback' AND uploaded = 0")
     abstract suspend fun fallbackPlansToUpload(): List<PlanEntity>
 
@@ -87,6 +90,9 @@ interface LogDao {
 
     @Query("SELECT * FROM set_logs WHERE date = :date AND exercise = :exercise ORDER BY loggedAtEpochMs")
     suspend fun getForDay(date: String, exercise: String): List<SetLogEntity>
+
+    @Query("SELECT * FROM set_logs WHERE exercise = :exercise AND date BETWEEN :from AND :to")
+    fun observeBetween(exercise: String, from: String, to: String): Flow<List<SetLogEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(log: SetLogEntity)

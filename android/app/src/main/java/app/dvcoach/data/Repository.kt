@@ -69,6 +69,11 @@ class Repository(
 
     data class Today(val date: String, val plan: PlanEntity?, val day: DayState?, val checkedIn: Boolean)
 
+    /** How a day went, for the week strip. A planned rest day counts as on plan. */
+    enum class DayMark { TRAINED, REST, CHECKED_IN, NONE }
+
+    data class WeekDay(val date: LocalDate, val mark: DayMark)
+
     sealed interface CheckInOutcome {
         data class Planned(val reason: String, val offline: Boolean) : CheckInOutcome
         data class Failed(val message: String) : CheckInOutcome
@@ -96,6 +101,30 @@ class Repository(
             checkinDao.observe(date),
         ) { plan, sets, logs, checkin ->
             Today(date, plan, plan?.let { dayState(it, sets, logs) }, checkedIn = checkin != null)
+        }
+    }
+
+    /** The last seven days ending today, from data on this phone, so it works offline. */
+    fun observeWeek(): Flow<List<WeekDay>> {
+        val to = today()
+        val from = to.minusDays(6)
+        return combine(
+            planDao.observePlansBetween(EXERCISE, from.toString(), to.toString()),
+            logDao.observeBetween(EXERCISE, from.toString(), to.toString()),
+        ) { plans, logs ->
+            val kinds = plans.associate { it.date to it.kind }
+            val trained = logs.filter { it.doneReps > 0 && it.rating != Rating.SKIPPED.wire }.map { it.date }.toSet()
+            (0L..6L).map { offset ->
+                val day = from.plusDays(offset)
+                val key = day.toString()
+                val mark = when {
+                    key in trained -> DayMark.TRAINED
+                    kinds[key] == "mobility" -> DayMark.REST
+                    key in kinds -> DayMark.CHECKED_IN
+                    else -> DayMark.NONE
+                }
+                WeekDay(day, mark)
+            }
         }
     }
 
