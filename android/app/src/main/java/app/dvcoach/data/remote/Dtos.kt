@@ -45,7 +45,29 @@ data class OnboardingResultDto(@SerialName("user_id") val userId: String, val pr
 data class MaxTestDto(
     val exercise: String = "pushup",
     val reps: Int,
+    val level: Int = 4,
     @SerialName("tested_on") val testedOn: String,
+)
+
+@Serializable
+data class LevelSuggestionDto(val direction: String, val level: Int, val message: String)
+
+@Serializable
+data class MaxTestResultDto(
+    val exercise: String,
+    val reps: Int,
+    val level: Int,
+    @SerialName("tested_on") val testedOn: String,
+    val suggestion: LevelSuggestionDto? = null,
+)
+
+@Serializable
+data class StreakDto(
+    val current: Int,
+    val best: Int,
+    @SerialName("today_on_plan") val todayOnPlan: Boolean,
+    @SerialName("rest_pass_available") val restPassAvailable: Boolean,
+    @SerialName("rest_pass_days") val restPassDays: List<String> = emptyList(),
 )
 
 @Serializable
@@ -92,6 +114,7 @@ data class PlanDto(
     val reason: String,
     val readiness: Double,
     @SerialName("max_reps") val maxReps: Int,
+    val level: Int? = null,
     val load: Double,
     @SerialName("engine_version") val engineVersion: String,
     val source: String,
@@ -105,6 +128,7 @@ data class FallbackPlanDto(
     val policy: Policy,
     val reason: String,
     @SerialName("max_reps") val maxReps: Int,
+    val level: Int? = null,
     val load: Double,
     @SerialName("engine_version") val engineVersion: String,
     val checkin: CheckinDto,
@@ -146,4 +170,5 @@ data class ProgressDto(
     @SerialName("max_tests") val maxTests: List<MaxTestDto>,
     val days: List<DayDto>,
     val weights: List<WeightDto>,
+    val streak: StreakDto? = null,
 )

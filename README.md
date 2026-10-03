@@ -97,6 +97,8 @@ Included:
 - Check-in that returns a plan
 - Set reminders (exact when *Alarms & reminders* is allowed) and logging from notifications
 - Changing your daily schedule
+- Push-up levels (wall → incline → knee → full → decline), chosen at the max test, with suggestions to move up at 20 reps or down below 5
+- A streak of days on plan: sets, planned rest days and stopping for pain all count, and one missed day a week is covered by a rest pass
 - In-day rules and the offline fallback plan
 - Sync
 - Progress chart

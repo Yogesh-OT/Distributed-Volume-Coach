@@ -28,6 +28,7 @@ import app.dvcoach.data.Repository
 import app.dvcoach.data.remote.ApiResult
 import app.dvcoach.data.remote.DayDto
 import app.dvcoach.data.remote.ProgressDto
+import app.dvcoach.engine.Levels
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -81,17 +82,38 @@ fun ProgressScreen(repository: Repository, onRetest: () -> Unit) {
 
 @Composable
 private fun ProgressContent(progress: ProgressDto, today: LocalDate, onRetest: () -> Unit) {
+    progress.streak?.let { streak ->
+        Section("Streak") {
+            Text("${streak.current} days now · best ${streak.best}", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "A day counts when you do at least one set, take a planned rest day, or stop because of pain. " +
+                    "The first missed day each week is covered by a rest pass.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                if (streak.restPassAvailable) "This week's rest pass is still free." else "This week's rest pass is used.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+
     val latest = progress.maxTests.lastOrNull()
     Section("Max test") {
-        Text(latest?.let { "${it.reps} push-ups on ${it.testedOn}" } ?: "No max test yet.")
+        Text(latest?.let { "${it.reps} ${Levels.of(it.level).plural} on ${it.testedOn}" } ?: "No max test yet.")
         if (progress.maxTests.size > 1) {
-            Text("History: " + progress.maxTests.joinToString(" → ") { "${it.reps}" }, style = MaterialTheme.typography.bodySmall)
+            Text(
+                "History: " + progress.maxTests.joinToString(" → ") { "${it.reps} ${Levels.of(it.level).plural}" },
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
-        val nextTest = latest?.let { LocalDate.parse(it.testedOn).plusDays(MAX_TEST_INTERVAL_DAYS) }
-        if (nextTest == null || !today.isBefore(nextTest)) {
-            Button(onClick = onRetest) { Text("Take a new max test") }
-        } else {
-            Text("Your next max test can be on $nextTest.", style = MaterialTheme.typography.bodySmall)
+        latest?.let { test -> Levels.suggestion(test.level, test.reps)?.let { Banner(it) } }
+        val nextSameLevel = latest?.let { LocalDate.parse(it.testedOn).plusDays(MAX_TEST_INTERVAL_DAYS) }
+        Button(onClick = onRetest) { Text("Take a max test") }
+        if (nextSameLevel != null && today.isBefore(nextSameLevel)) {
+            Text(
+                "At the same level, your next test can be on $nextSameLevel. A different level can be tested any time.",
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 

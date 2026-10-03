@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .hypothesis/
 server/*.db
+server/*.db.bak-*
 server/.env
 
 # Android

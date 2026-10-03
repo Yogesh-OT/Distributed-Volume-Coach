@@ -1,5 +1,6 @@
 package app.dvcoach.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -22,6 +23,8 @@ data class LocalProfile(
     val clearanceConfirmed: Boolean,
     val maxReps: Int? = null,
     val lastMaxTestDate: String? = null,
+    // Push-up level of the latest max test (engine/Levels.kt). Added in database version 2.
+    @ColumnInfo(defaultValue = "4") val level: Int = 4,
 ) {
     // A function, not a property, so Room doesn't try to store it as a column.
     fun flagList(): List<String> = screeningFlags.split(",").filter { it.isNotBlank() }
@@ -36,6 +39,7 @@ data class PlanEntity(
     val reason: String,
     val readiness: Double?,
     val maxReps: Int,
+    val level: Int? = null, // added in database version 2
     val load: Double,
     val engineVersion: String,
     val source: String, // server or fallback

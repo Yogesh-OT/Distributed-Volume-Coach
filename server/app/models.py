@@ -67,6 +67,7 @@ class MaxTest(Base):
     user_id: Mapped[str] = _user_fk()
     exercise: Mapped[str] = mapped_column(String(32))
     reps: Mapped[int] = mapped_column(Integer)
+    level: Mapped[int] = mapped_column(Integer, default=4, server_default="4")  # engine/levels.py
     tested_on: Mapped[dt.date] = mapped_column(Date)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
@@ -117,6 +118,7 @@ class Plan(Base):
     reason: Mapped[str] = mapped_column(Text)
     readiness: Mapped[float] = mapped_column(Float)
     max_reps: Mapped[int] = mapped_column(Integer)
+    level: Mapped[int | None] = mapped_column(Integer)
     load: Mapped[float] = mapped_column(Float)
     engine_version: Mapped[str] = mapped_column(String(16))
     profile_version: Mapped[int | None] = mapped_column(Integer)

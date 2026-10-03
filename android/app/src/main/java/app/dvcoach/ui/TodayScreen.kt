@@ -43,7 +43,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import app.dvcoach.core.Hhmm
@@ -51,8 +53,11 @@ import app.dvcoach.data.Repository
 import app.dvcoach.data.Repository.DayMark
 import app.dvcoach.data.local.LocalProfile
 import app.dvcoach.data.local.PlanEntity
+import app.dvcoach.data.remote.ApiResult
+import app.dvcoach.data.remote.StreakDto
 import app.dvcoach.engine.DayState
 import app.dvcoach.engine.DayStatus
+import app.dvcoach.engine.Levels
 import app.dvcoach.engine.Rating
 import app.dvcoach.engine.SetState
 import app.dvcoach.engine.SetStatus
@@ -78,8 +83,24 @@ class TodayViewModel(private val repository: Repository) : ViewModel() {
     val week: StateFlow<List<Repository.WeekDay>> =
         repository.observeWeek().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    /** From the server; stays as last known when offline. */
+    var streak by mutableStateOf<StreakDto?>(null)
+        private set
+
+    fun refreshStreak() {
+        viewModelScope.launch {
+            val result = repository.streak()
+            if (result is ApiResult.Ok) streak = result.value
+        }
+    }
+
     fun log(date: String, ref: String, rating: Rating, doneReps: Int?) {
-        viewModelScope.launch { repository.logSet(date, ref, rating, doneReps) }
+        viewModelScope.launch {
+            repository.logSet(date, ref, rating, doneReps)
+            // Upload straight away so the streak can count today.
+            repository.syncNow()
+            refreshStreak()
+        }
     }
 }
 
@@ -92,10 +113,12 @@ fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: (
     val reminders = rememberReminderState(repository)
     val now by rememberMinuteClock()
     var showGuide by remember { mutableStateOf(false) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshStreak() }
 
     ScreenColumn {
         Text("Today", style = MaterialTheme.typography.headlineMedium)
         WeekStrip(week)
+        vm.streak?.let { StreakLine(it) }
         profile?.let { WindowLine(it, onEditSchedule) }
         ReminderCards(reminders)
         val t = today
@@ -105,7 +128,9 @@ fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: (
             else -> PlanSection(t.date, t.plan, t.day, profile, now, onLog = vm::log, onShowGuide = { showGuide = true })
         }
     }
-    if (showGuide) PushupGuideSheet(onDismiss = { showGuide = false })
+    if (showGuide) {
+        PushupGuideSheet(currentLevel = today?.plan?.level ?: profile?.level, onDismiss = { showGuide = false })
+    }
 }
 
 /** The current time, refreshed every 30 seconds, for "in 25 min" and unlocking the next set. */
@@ -181,6 +206,32 @@ private fun DayDot(day: Repository.WeekDay, isToday: Boolean) {
 }
 
 @Composable
+private fun StreakLine(streak: StreakDto) {
+    val main = when {
+        streak.current == 0 -> "Start a streak: do a set today"
+        streak.current == 1 -> "1-day streak"
+        else -> "${streak.current}-day streak"
+    }
+    val today = when {
+        streak.current == 0 -> null
+        streak.todayOnPlan -> "Today counts"
+        else -> "A set today makes it ${streak.current + 1}"
+    }
+    val pass = if (streak.restPassAvailable) "1 rest pass left this week" else "Rest pass used this week"
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            main + if (streak.best > streak.current) " · best ${streak.best}" else "",
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Text(
+            listOfNotNull(today, pass).joinToString(" · "),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
 private fun WindowLine(profile: LocalProfile, onEditSchedule: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
@@ -243,7 +294,7 @@ private fun PlanSection(
     when {
         plan.kind == "mobility" -> HeroCard {
             Eyebrow("Rest day")
-            Text("No push-ups today", style = MaterialTheme.typography.headlineSmall)
+            Text("No training today", style = MaterialTheme.typography.headlineSmall)
             Text("Gentle mobility only. A planned rest day counts towards your week.")
         }
         plan.kind == "window_passed" -> HeroCard {
@@ -255,7 +306,7 @@ private fun PlanSection(
             Text("Your training window has ended", style = MaterialTheme.typography.headlineSmall)
             Text("You checked in after your window$window.$reminder If your days look different, tap Change above.")
         }
-        day != null && day.sets.isNotEmpty() -> SetHero(date, day, now, onLog, onShowGuide)
+        day != null && day.sets.isNotEmpty() -> SetHero(date, day, Levels.of(plan.level).plural, now, onLog, onShowGuide)
     }
     if (plan.source == "fallback") Banner("Offline plan. It syncs when you're back online.")
     Text(plan.reason, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -273,6 +324,7 @@ private fun PlanSection(
 private fun SetHero(
     date: String,
     day: DayState,
+    exerciseName: String,
     now: LocalTime,
     onLog: (String, String, Rating, Int?) -> Unit,
     onShowGuide: () -> Unit,
@@ -290,7 +342,7 @@ private fun SetHero(
                 val minutesUntil = Hhmm.toMinutes(next.at) - (now.hour * 60 + now.minute)
                 val unlocked = minutesUntil <= EARLY_WINDOW_MIN || earlyAllowedFor == next.ref
                 Eyebrow("Next set")
-                Text("${next.targetReps} push-ups", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
+                Text("${next.targetReps} $exerciseName", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
                 Text(
                     when {
                         minutesUntil > 0 -> "at ${next.at} · in ${formatMinutes(minutesUntil)}"
@@ -326,7 +378,7 @@ private fun SetHero(
             day.status == DayStatus.STOPPED_PAIN -> {
                 Eyebrow("Today")
                 Text("Stopped for today", style = MaterialTheme.typography.headlineSmall)
-                Text("Push-ups are off for the rest of the day because of pain. If it comes back, check with a professional.")
+                Text("Training is off for the rest of the day because of pain. If it comes back, check with a professional.")
             }
             else -> {
                 Eyebrow("Today")
@@ -371,7 +423,7 @@ private fun PainDialog(target: Int, onConfirm: (Int) -> Unit, onDismiss: () -> U
     var reps by remember { mutableStateOf("0") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Stop push-ups for today?") },
+        title = { Text("Stop for today?") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("How many did you do before it hurt? The rest of today's sets will be dropped.")

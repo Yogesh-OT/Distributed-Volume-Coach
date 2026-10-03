@@ -40,7 +40,10 @@ interface CoachApi {
     suspend fun updateProfile(@Body body: ProfileDto): ProfileDto
 
     @POST("v1/max-tests")
-    suspend fun recordMaxTest(@Body body: MaxTestDto): MaxTestDto
+    suspend fun recordMaxTest(@Body body: MaxTestDto): MaxTestResultDto
+
+    @GET("v1/streak")
+    suspend fun streak(@Query("exercise") exercise: String = "pushup"): StreakDto
 
     @POST("v1/body-measurements")
     suspend fun addMeasurements(@Body body: BodyMeasurementDto): BodyProfileDto

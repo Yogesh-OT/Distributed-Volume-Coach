@@ -12,7 +12,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.dvcoach.engine.Levels
 
 private val GUIDE = listOf(
     "Set up" to listOf(
@@ -33,10 +35,6 @@ private val GUIDE = listOf(
         "Half reps that stop well above the floor.",
         "Head dropping towards the floor.",
     ),
-    "Make it easier or harder" to listOf(
-        "Easier: hands on a table, bench or wall. The higher the hands, the easier it is.",
-        "Harder, later on: feet raised on a step.",
-    ),
     "What it works" to listOf(
         "Chest, the front of your shoulders and triceps. Your core holds the straight line.",
     ),
@@ -44,7 +42,7 @@ private val GUIDE = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PushupGuideSheet(onDismiss: () -> Unit) {
+fun PushupGuideSheet(currentLevel: Int?, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -58,6 +56,21 @@ fun PushupGuideSheet(onDismiss: () -> Unit) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(title, style = MaterialTheme.typography.titleMedium)
                     points.forEach { Text("•  $it", style = MaterialTheme.typography.bodyMedium) }
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Levels, easiest first", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "The same cues apply at every level. Your max test sets the level; it suggests moving up at 20 reps.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Levels.ALL.forEach { level ->
+                    val yours = level.number == (currentLevel ?: Levels.DEFAULT)
+                    Text(
+                        "${level.number}. ${level.title}${if (yours) " (your level)" else ""}: ${level.how}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (yours) FontWeight.SemiBold else null,
+                    )
                 }
             }
             Text(

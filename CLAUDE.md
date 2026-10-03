@@ -60,12 +60,25 @@ See `docs/ux-references.md`.
 - **Body form errors name the field**, and values are range-checked on the phone. Server validation errors are prefixed with the field name too.
 - **The server reason now says "1 set"**, not "1 sets".
 
+## Session 2, third build: streak and push-up levels (approved by the user)
+
+- **Levels** live in `engine/levels.py`, with a Kotlin mirror in `engine/Levels.kt`: wall, incline, knee, full, decline.
+  - The max test records its level. Plans carry the level, and reminders say "9 knee push-ups".
+  - The 14-day spacing applies per level, so switching level is allowed any time.
+  - Suggestions: up at 20+ reps, down below 5.
+  - Database changes: Alembic `0002` and Room version 2 (`MIGRATION_1_2`) add `level`.
+- **Streak** lives in `engine/streak.py` and is served by `GET /v1/streak` and inside `/v1/progress`.
+  - A day counts when it had a set done, a mobility plan or a pain stop.
+  - One rest pass per ISO week covers the first miss, keeping the streak without adding to it.
+  - Today counts only once it's on plan.
+- **Declined for now:** the 14-day block map and rep counting with the phone's sensor.
+
 ## Next up
 
 1. **Phone checks.**
    - Verified on 2026-10-03: exact reminders (the 17:29 set fired at 17:29:09), in-app logging, Pain ending the day, and reset today.
    - Still to check: the notification buttons (Done / Hard / Snooze), offline logging and later sync, and the offline fallback plan.
-2. **Decisions waiting on the user:** the streak, push-up levels, the 14-day block map and rep counting with the phone's sensor.
+2. **Check streak and levels on the phone.** This includes the first install over an existing app with the fixed key, and Room migration 1 → 2 running on real data.
 3. **Then phase 2:**
    - Weekly progression and 14-day max tests.
    - The Hard-set model with the simulator.

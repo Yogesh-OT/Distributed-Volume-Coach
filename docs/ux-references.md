@@ -63,8 +63,10 @@ Looked at on a phone: the Training, Discover, Report and Settings tabs, a workou
 5. **A "How to do a push-up" sheet** from the set card.
 6. **A focused set screen** when a set notification is tapped.
 
-**Needs a decision:**
-- **A streak** of days on plan, where rest days count, possibly with one freeze a week.
-- **Push-up levels** (incline → knee → full → decline), chosen from the max test, with the level going up as the max climbs.
+**Decided on 2026-10-03:**
+- **Streak: built.** Days on plan; rest days and pain stops count; one rest pass a week.
+- **Push-up levels: built.** Wall → incline → knee → full → decline, chosen at the max test.
+
+**Not now:**
 - **The 14-day block shown as a program map** leading to the next max test.
 - **Counting reps with the phone's sensor.**

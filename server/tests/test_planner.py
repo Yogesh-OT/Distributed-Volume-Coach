@@ -37,7 +37,7 @@ def test_sample_day_matches_the_architecture_page():
     assert plan.readiness == 0.75
     assert len(plan.sets) == 6
     assert {s.target_reps for s in plan.sets} == {9}
-    assert plan.reason == "Good sleep, good energy and low soreness: 6 sets of 9 (45% of your 20-rep max)."
+    assert plan.reason == "Good sleep, good energy and low soreness: 6 sets of 9 push-ups (45% of your 20-rep max)."
     assert all("09:00" <= s.at <= "19:00" for s in plan.sets)
     assert min(_gaps(plan)) >= 45
 
@@ -70,7 +70,7 @@ def test_late_check_in_fits_fewer_sets_and_says_why():
     plan = build_plan(replace(SAMPLE, checkin_time="17:30"))
     assert len(plan.sets) == 1
     assert plan.sets[0].at >= "17:45"
-    assert ": 1 set of 9 (" in plan.reason
+    assert ": 1 set of 9 push-ups (" in plan.reason
     assert plan.reason.endswith("5 fewer than usual because of the late check-in.")
 
 

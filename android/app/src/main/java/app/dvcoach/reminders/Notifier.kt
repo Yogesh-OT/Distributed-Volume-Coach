@@ -42,14 +42,14 @@ object Notifier {
             PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission") // checked by canPost()
-    fun showSetPrompt(context: Context, date: String, set: SetState, allRefs: List<String>) {
+    fun showSetPrompt(context: Context, date: String, set: SetState, allRefs: List<String>, exerciseName: String) {
         if (!canPost(context)) return
         // Clear older prompts so a stale "Done" can't be tapped for the wrong set.
         allRefs.filter { it != set.ref }.forEach { cancelSetPrompt(context, it) }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_SETS)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("${set.targetReps} push-ups")
+            .setContentTitle("${set.targetReps} $exerciseName")
             .setContentText("Stop with a few reps left in the tank.")
             .setContentIntent(openApp(context))
             .setAutoCancel(true)

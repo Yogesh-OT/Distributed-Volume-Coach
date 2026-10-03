@@ -63,6 +63,7 @@ class Plan:
     max_reps: int
     load: float
     engine_version: str
+    level: int = 4  # see engine/levels.py
     notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
@@ -77,4 +78,5 @@ class Plan:
             "max_reps": self.max_reps,
             "load": self.load,
             "engine_version": self.engine_version,
+            "level": self.level,
         }

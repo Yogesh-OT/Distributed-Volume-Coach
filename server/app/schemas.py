@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
 
 from engine.common import to_minutes
+from engine.levels import DEFAULT_LEVEL, LEVELS
 from engine.safety import SCREENING_FLAGS
 
 HHMM = Annotated[str, StringConstraints(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")]
@@ -81,6 +82,7 @@ class OnboardingOut(BaseModel):
 class MaxTestIn(BaseModel):
     exercise: Exercise = "pushup"
     reps: int = Field(ge=1, le=500)
+    level: int = Field(default=DEFAULT_LEVEL, ge=1, le=len(LEVELS))
     tested_on: dt.date
 
 
@@ -89,7 +91,26 @@ class MaxTestOut(BaseModel):
 
     exercise: str
     reps: int
+    level: int
     tested_on: dt.date
+
+
+class LevelSuggestionOut(BaseModel):
+    direction: Literal["up", "down"]
+    level: int
+    message: str
+
+
+class MaxTestResultOut(MaxTestOut):
+    suggestion: LevelSuggestionOut | None = None
+
+
+class StreakOut(BaseModel):
+    current: int
+    best: int
+    today_on_plan: bool
+    rest_pass_available: bool
+    rest_pass_days: list[dt.date]
 
 
 class BodyMeasurementIn(BaseModel):
@@ -150,6 +171,7 @@ class PlanOut(BaseModel):
     reason: str
     readiness: float
     max_reps: int
+    level: int | None = None
     load: float
     engine_version: str
     source: str
@@ -164,6 +186,7 @@ class FallbackPlanIn(BaseModel):
     policy: dict
     reason: str = Field(max_length=500)
     max_reps: int = Field(ge=1, le=500)
+    level: int | None = Field(default=None, ge=1, le=len(LEVELS))
     load: float = Field(gt=0, le=1)
     engine_version: str = Field(max_length=16)
     checkin: CheckinIn
@@ -207,3 +230,4 @@ class ProgressOut(BaseModel):
     max_tests: list[MaxTestOut]
     days: list[DayOut]
     weights: list[WeightOut]
+    streak: StreakOut

@@ -18,16 +18,19 @@ import app.dvcoach.data.remote.CoachApi
 import app.dvcoach.data.remote.FallbackPlanDto
 import app.dvcoach.data.remote.HealthDto
 import app.dvcoach.data.remote.MaxTestDto
+import app.dvcoach.data.remote.MaxTestResultDto
 import app.dvcoach.data.remote.OnboardingDto
 import app.dvcoach.data.remote.ProfileDto
 import app.dvcoach.data.remote.ProgressDto
 import app.dvcoach.data.remote.SetLogBatchDto
 import app.dvcoach.data.remote.SetLogDto
+import app.dvcoach.data.remote.StreakDto
 import app.dvcoach.data.remote.apiCall
 import app.dvcoach.engine.DayState
 import app.dvcoach.engine.DayStatus
 import app.dvcoach.engine.FallbackPlanner
 import app.dvcoach.engine.InDayPolicy
+import app.dvcoach.engine.Levels
 import app.dvcoach.engine.LoggedSet
 import app.dvcoach.engine.PlannedSet
 import app.dvcoach.engine.Policy
@@ -180,6 +183,7 @@ class Repository(
                 clearanceConfirmed = dto.clearanceConfirmed,
                 maxReps = existing?.maxReps,
                 lastMaxTestDate = existing?.lastMaxTestDate,
+                level = existing?.level ?: Levels.DEFAULT,
             )
         )
     }
@@ -232,15 +236,14 @@ class Repository(
         }
     }
 
-    suspend fun recordMaxTest(reps: Int): ApiResult<Unit> {
+    /** On success the result may carry a suggestion to test an easier or harder level next time. */
+    suspend fun recordMaxTest(reps: Int, level: Int): ApiResult<MaxTestResultDto> {
         val date = today().toString()
-        return when (val result = apiCall { api.recordMaxTest(MaxTestDto(reps = reps, testedOn = date)) }) {
-            is ApiResult.Ok -> {
-                profileDao.get()?.let { profileDao.upsert(it.copy(maxReps = reps, lastMaxTestDate = date)) }
-                ApiResult.Ok(Unit)
-            }
-            is ApiResult.Failed -> result
+        val result = apiCall { api.recordMaxTest(MaxTestDto(reps = reps, level = level, testedOn = date)) }
+        if (result is ApiResult.Ok) {
+            profileDao.get()?.let { profileDao.upsert(it.copy(maxReps = reps, lastMaxTestDate = date, level = level)) }
         }
+        return result
     }
 
     suspend fun addMeasurements(measurements: BodyMeasurementDto): ApiResult<BodyProfileDto> =
@@ -249,6 +252,8 @@ class Repository(
     suspend fun bodyProfile(): ApiResult<BodyProfileDto> = apiCall { api.bodyProfile() }
 
     suspend fun progress(): ApiResult<ProgressDto> = apiCall { api.progress() }
+
+    suspend fun streak(): ApiResult<StreakDto> = apiCall { api.streak() }
 
     suspend fun checkServer(): ApiResult<HealthDto> = apiCall { api.health() }
 
@@ -293,6 +298,7 @@ class Repository(
                         reason = plan.reason,
                         readiness = plan.readiness,
                         maxReps = plan.maxReps,
+                        level = plan.level,
                         load = plan.load,
                         engineVersion = plan.engineVersion,
                         source = plan.source,
@@ -327,6 +333,7 @@ class Repository(
                 reason = result.reason,
                 readiness = null,
                 maxReps = last.maxReps,
+                level = last.level,
                 load = last.load,
                 engineVersion = FallbackPlanner.ENGINE_VERSION,
                 source = "fallback",
@@ -392,12 +399,12 @@ class Repository(
 
     suspend fun onPromptDue(date: String, ref: String) {
         if (date != today().toString()) return
-        val (_, day) = loadDay(date) ?: return
+        val (plan, day) = loadDay(date) ?: return
         val set = day.sets.firstOrNull { it.ref == ref } ?: return
         if (day.status != DayStatus.ACTIVE || set.status != SetStatus.PENDING) return
         // The set moved later (a hard set or a snooze) and has its own new alarm.
         if (Hhmm.toMinutes(set.at) > Hhmm.toMinutes(nowHhmm()) + 5) return
-        Notifier.showSetPrompt(context, date, set, day.sets.map { it.ref })
+        Notifier.showSetPrompt(context, date, set, day.sets.map { it.ref }, Levels.of(plan.level).plural)
     }
 
     suspend fun onCheckinReminderDue() {
@@ -437,8 +444,16 @@ class Repository(
             if (sets.isNotEmpty() && checkin != null) {
                 api.uploadFallbackPlan(
                     FallbackPlanDto(
-                        plan.date, plan.exercise, sets, decodePolicy(plan.policyJson), plan.reason,
-                        plan.maxReps, plan.load, plan.engineVersion, checkin,
+                        date = plan.date,
+                        exercise = plan.exercise,
+                        sets = sets,
+                        policy = decodePolicy(plan.policyJson),
+                        reason = plan.reason,
+                        maxReps = plan.maxReps,
+                        level = plan.level,
+                        load = plan.load,
+                        engineVersion = plan.engineVersion,
+                        checkin = checkin,
                     )
                 )
             }

@@ -25,6 +25,7 @@ from .common import (
     to_hhmm,
     to_minutes,
 )
+from .levels import DEFAULT_LEVEL, level as level_info
 from .plan import Plan, PlanKind, PlannedSet, Policy
 from .readiness import describe, readiness
 
@@ -47,6 +48,7 @@ class PlannerInput:
     soreness: int
     energy: int
     seed: str  # makes slot jitter repeatable, e.g. "<user id>:<date>"
+    level: int = DEFAULT_LEVEL  # the level the max test was done at
 
 
 def base_set_count(experience: Experience, prompt_limit: int, window_minutes: int) -> int:
@@ -66,6 +68,7 @@ def build_plan(inp: PlannerInput) -> Plan:
     summary = describe(inp.sleep_quality, inp.soreness, inp.energy)
     policy = Policy(window_end=inp.window_end, quiet_hours=inp.quiet_hours)
     name = EXERCISE_NAMES.get(inp.exercise, inp.exercise)
+    level = level_info(inp.level)
 
     def plan(kind: PlanKind, sets: list[PlannedSet], reason: str) -> Plan:
         return Plan(
@@ -79,6 +82,7 @@ def build_plan(inp: PlannerInput) -> Plan:
             max_reps=inp.max_reps,
             load=load,
             engine_version=ENGINE_VERSION,
+            level=level.number,
         )
 
     if ready < MOBILITY_ONLY_BELOW:
@@ -99,7 +103,10 @@ def build_plan(inp: PlannerInput) -> Plan:
     sets = [PlannedSet(ref=f"s{i + 1}", at=to_hhmm(t), target_reps=reps) for i, t in enumerate(times)]
 
     sets_word = "set" if count == 1 else "sets"
-    reason = f"{summary}: {count} {sets_word} of {reps} ({round_half_up(load * 100)}% of your {inp.max_reps}-rep max)."
+    reason = (
+        f"{summary}: {count} {sets_word} of {reps} {level.plural} "
+        f"({round_half_up(load * 100)}% of your {inp.max_reps}-rep max)."
+    )
     if count < wanted:
         reason += f" {wanted - count} fewer than usual because of the late check-in."
     return plan(PlanKind.TRAINING, sets, reason)

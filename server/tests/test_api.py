@@ -70,7 +70,7 @@ def test_full_day(client):
     plan = first.json()
     assert plan["source"] == "server"
     assert len(plan["sets"]) == 6 and {s["target_reps"] for s in plan["sets"]} == {9}
-    assert plan["reason"] == "Good sleep, good energy and low soreness: 6 sets of 9 (45% of your 20-rep max)."
+    assert plan["reason"] == "Good sleep, good energy and low soreness: 6 sets of 9 push-ups (45% of your 20-rep max)."
 
     again = client.post("/v1/checkins", json={**CHECKIN, "sleep_quality": 1}, headers=ALICE)
     assert again.status_code == 200 and again.json() == plan  # one plan per day
@@ -85,7 +85,7 @@ def test_full_day(client):
     assert retry.json() == {"accepted": 0, "duplicates": 2}
 
     progress = client.get("/v1/progress", headers=ALICE).json()
-    assert progress["max_tests"] == [{"exercise": "pushup", "reps": 20, "tested_on": TODAY}]
+    assert progress["max_tests"] == [{"exercise": "pushup", "reps": 20, "level": 4, "tested_on": TODAY}]
     assert progress["days"] == [{"date": TODAY, "sets_done": 2, "reps_done": 18, "hard_sets": 1}]
 
 
@@ -213,3 +213,36 @@ def test_dev_routes_do_not_exist_outside_dev_mode():
     settings = Settings(database_url="sqlite://", auth_mode="firebase", create_tables=True)
     with TestClient(create_app(settings, clock=lambda: NOW)) as c:
         assert c.delete(f"/v1/dev/days/{TODAY}", headers=ALICE).status_code == 404
+
+
+def test_max_tests_carry_a_level_and_a_suggestion(client):
+    assert onboard(client).status_code == 201
+    weak = client.post("/v1/max-tests", json={"reps": 3, "tested_on": TODAY}, headers=ALICE).json()
+    assert weak["level"] == 4 and weak["suggestion"]["direction"] == "down" and weak["suggestion"]["level"] == 3
+
+    # Switching level needs a fresh baseline, so the 14-day spacing doesn't apply to it.
+    knee = client.post("/v1/max-tests", json={"reps": 12, "level": 3, "tested_on": TODAY}, headers=ALICE)
+    assert knee.status_code == 201 and knee.json()["suggestion"] is None
+    again = client.post("/v1/max-tests", json={"reps": 13, "level": 3, "tested_on": TODAY}, headers=ALICE)
+    assert again.status_code == 409 and again.json()["detail"]["code"] == "too_soon"
+
+    plan = client.post("/v1/checkins", json=CHECKIN, headers=ALICE).json()
+    assert plan["level"] == 3 and plan["max_reps"] == 12
+    assert "of 5 knee push-ups (45% of your 12-rep max)" in plan["reason"]
+
+
+def test_streak_counts_days_on_plan(client):
+    ready_to_train(client)
+    assert client.get("/v1/streak", headers=ALICE).json()["current"] == 0
+
+    client.post("/v1/checkins", json=CHECKIN, headers=ALICE)
+    client.post("/v1/set-logs/batch", json={"logs": [log("s1", "solid", "09:50")]}, headers=ALICE)
+    streak = client.get("/v1/streak", headers=ALICE).json()
+    assert streak == {
+        "current": 1,
+        "best": 1,
+        "today_on_plan": True,
+        "rest_pass_available": True,
+        "rest_pass_days": [],
+    }
+    assert client.get("/v1/progress", headers=ALICE).json()["streak"]["current"] == 1
