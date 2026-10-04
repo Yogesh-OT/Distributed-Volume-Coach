@@ -19,6 +19,7 @@ import app.dvcoach.data.remote.FallbackPlanDto
 import app.dvcoach.data.remote.HealthDto
 import app.dvcoach.data.remote.MaxTestDto
 import app.dvcoach.data.remote.MaxTestResultDto
+import app.dvcoach.data.remote.SessionSettingsDto
 import app.dvcoach.data.remote.OnboardingDto
 import app.dvcoach.data.remote.ProfileDto
 import app.dvcoach.data.remote.ProgressDto
@@ -254,6 +255,12 @@ class Repository(
     suspend fun progress(): ApiResult<ProgressDto> = apiCall { api.progress() }
 
     suspend fun streak(): ApiResult<StreakDto> = apiCall { api.streak() }
+
+    // Session mode. Online only for now; offline session logs come with the session player.
+    suspend fun sessionSettings(): ApiResult<SessionSettingsDto> = apiCall { api.sessionSettings() }
+
+    suspend fun saveSessionSettings(settings: SessionSettingsDto): ApiResult<SessionSettingsDto> =
+        apiCall { api.saveSessionSettings(settings) }
 
     suspend fun checkServer(): ApiResult<HealthDto> = apiCall { api.health() }
 

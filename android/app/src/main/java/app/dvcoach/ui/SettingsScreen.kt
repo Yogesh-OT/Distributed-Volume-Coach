@@ -61,7 +61,7 @@ class SettingsViewModel(private val repository: Repository) : ViewModel() {
 }
 
 @Composable
-fun SettingsScreen(repository: Repository, onEditSchedule: () -> Unit) {
+fun SettingsScreen(repository: Repository, onEditSchedule: () -> Unit, onEditWorkouts: () -> Unit = {}) {
     val vm = repoViewModel(repository) { SettingsViewModel(it) }
     val profile by vm.profile.collectAsStateWithLifecycle()
     val reminders = rememberReminderState(repository)
@@ -79,6 +79,12 @@ fun SettingsScreen(repository: Repository, onEditSchedule: () -> Unit) {
                 InfoRow("Prompts a day", "Up to ${it.promptLimit}")
             }
             OutlinedButton(onClick = onEditSchedule) { Text("Change your day") }
+        }
+        HorizontalDivider()
+
+        Section("Workouts") {
+            Text("Short sessions for building muscle or getting fit, planned around what you have at home.")
+            OutlinedButton(onClick = onEditWorkouts) { Text("Set up workouts") }
         }
         HorizontalDivider()
 

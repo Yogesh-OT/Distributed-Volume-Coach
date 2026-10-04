@@ -110,11 +110,16 @@ private fun MainScaffold(repository: Repository) {
             }
             composable("checkin") { CheckInScreen(repository, onDone = { nav.popBackStack() }) }
             composable("schedule") { ScheduleScreen(repository, onDone = { nav.popBackStack() }) }
+            composable("workouts") { WorkoutSettingsScreen(repository, onDone = { nav.popBackStack() }) }
             composable(Tab.PROGRESS.route) { ProgressScreen(repository, onRetest = { nav.navigate("maxtest") }) }
             composable("maxtest") { MaxTestScreen(repository, onDone = { nav.popBackStack() }) }
             composable(Tab.BODY.route) { BodyScreen(repository) }
             composable(Tab.SETTINGS.route) {
-                SettingsScreen(repository, onEditSchedule = { nav.navigate("schedule") })
+                SettingsScreen(
+                    repository,
+                    onEditSchedule = { nav.navigate("schedule") },
+                    onEditWorkouts = { nav.navigate("workouts") },
+                )
             }
         }
     }
