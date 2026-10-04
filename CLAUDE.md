@@ -87,6 +87,25 @@ See `docs/ux-references.md`.
 - **The planner's percentage** is now the real reps ÷ max: 5 of 12 shows 42%, not 45%.
 - **The Today screen** shows a "Max test due" card 14 days after the last max test.
 
+## Session 4 (2026-10-04, evening): training research and the session engine
+
+- **The user asked me to research and choose what's best over their opinions.** The evidence (ACSM 2026, Pelland 2026, Robinson 2024, Singer 2024 and others) and the rule taken from each finding are in `docs/training-research.md`. The full design is in `docs/session-mode-and-coach.md`.
+- **Decided by research:**
+  - 2, 3 or 4 days a week; 20, 30 or 45 minute sessions.
+  - Exercises in pairs for different muscles, 60 s rest. Main movements get 3 sets and extras 2.
+  - Rep ranges 6–15 (calves and core 8–20), most sets 1–3 reps short of failure, and the last set of each exercise as far as good form allows.
+  - Double progression on ladders of levels.
+  - About 10 sets per muscle a week to start, with a weekly volume step up to 20.
+  - Back work: doorway rows, then table rows with a sturdy-table check. A pull-up bar is the first optional item later.
+  - Get fit / lose fat: strength sessions plus low-impact interval circuits.
+  - No gender setting, no calorie estimates, no scheduled rest weeks.
+- **Built (server engine only, no API or Android yet):**
+  - `engine/exercises.py`: 12 ladders (push, pike, row, squat, lunge, hinge, curl, calves, triceps, plank, crunch, side plank), muscle weights (indirect = ½), household needs, circuit moves and levels.
+  - `engine/sessions.py`: week plans by goal and days, and session sizing. Pairs get in at minimum sets first, then sets grow, so more volume never drops a muscle. Also readiness trimming and circuits.
+  - `engine/session_progression.py`: per-exercise steps after a session, the weekly volume review and circuit levels.
+  - `tests/test_sessions.py`: 121 cases. They check every major muscle twice a week and that every session fits its length. The whole suite is 188 passing.
+- **The report page** (the user asked for it) is designed in the same doc: week totals, sets per muscle, exercise progress, history, and body trend.
+
 ## Product direction (decided by the user on 2026-10-04)
 
 - **The app grows into a coach-led home-workout app**, using Home Workout – No Equipment as the UX reference (`docs/ux-references.md`).
@@ -100,14 +119,14 @@ See `docs/ux-references.md`.
   - The coach explains plans, answers questions and adapts within the engine's limits via tool calls. It never invents numbers.
   - Load the `claude-api` skill before writing any coach code.
 
-## Where we left off (2026-10-04, about 15:25)
+## Where we left off (2026-10-04, about 21:45)
 
 - **The phone runs v6** (`398bc21`, weekly progression). It installed over v5 and kept its data. Permissions are granted, Battery saver is set to No restrictions, and the user says Autostart is on (`appops` still reads `ignore`).
 - **Test in progress (2026-10-04).**
   - The 15:20 check-in planned 4 sets of 8 (beginner load 40% of 20) at 15:58, 16:50, 17:44 and 18:37, all exact alarms.
   - The weekly review row for the week of 2026-09-28 says `not_enough_data`, which is correct.
   - s1 was logged **Hard** at 15:20 from the app (early). Verified: the remaining sets moved to 17:20 and 18:14 at 6 reps, the 18:37 set was dropped past the 19:00 window end, and the streak went to 2 with `today_on_plan` true.
-  - **Still to verify:** Snooze from the notification at 17:20 should move the set to about 17:35. Done from the notification at 17:35 should be logged offline, because the dev server stops at about 17:15. Then restart the server and confirm the upload on app open.
+  - **Still to verify:** Snooze from a set notification (should move the set 15 minutes) and Done while the server is off, then the upload on app open. The 17:20 test wasn't confirmed: the session paused for a usage limit, and the dev server was stopped at some point before 21:30.
 - **The user's account:** max 20 standard push-ups (level 4) on 2026-10-03, so the next test at that level is on 2026-10-17. Streak: 2 (3 and 4 Oct).
 - **Backups:** `server/dev.db.bak-*` (from before migrations 0002 and 0003) and the phone app data in `D:\Android\backup\*.tar` (latest: `dvcoach-data-before-v6.tar`).
 
@@ -118,10 +137,10 @@ See `docs/ux-references.md`.
    - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
    - Check in once with the server off, to test the offline fallback plan.
    - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
-3. **Session mode and the AI coach.**
-   - The proposal is in `docs/session-mode-and-coach.md`, based on a second walk-through of Home Workout (findings in `docs/ux-references.md`).
-   - It waits for the user's go-ahead and two answers: back exercises without equipment, and the days and session lengths offered.
-   - The build order is in the proposal: engine → API → Android player → coach.
+3. **Session mode, step 2: the API.** See the build order in `docs/session-mode-and-coach.md`.
+   - Profile fields: mode, goal, days, session length, available items and high-impact.
+   - Today's session, session logs, the weekly review, a return-after-a-break rule, report endpoints and an Alembic migration.
+   - Then Android (the session player and the report), then the coach. Load the `claude-api` skill first.
 4. **Then the rest of phase 2.** Weekly progression and the max-test-due card are done (session 3):
    - The Hard-set model with the simulator.
    - Health Connect sleep.

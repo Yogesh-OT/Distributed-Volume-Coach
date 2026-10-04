@@ -105,7 +105,9 @@ Included:
 - Progress chart
 - Account export and deletion
 
-Not yet (later phases): the learned fatigue model and simulator, Health Connect, pull-ups, photos, and a session mode for other goals.
+In progress: **session mode** for building muscle and getting fit. Its engine is built and tested (`server/engine/exercises.py`, `sessions.py` and `session_progression.py`), but the API and the phone screens aren't yet. The design is in [docs/session-mode-and-coach.md](docs/session-mode-and-coach.md), and the research behind it is in [docs/training-research.md](docs/training-research.md).
+
+Not yet (later phases): the AI coach, the report page, the learned fatigue model and simulator, Health Connect, pull-ups and photos.
 
 ## Known issues
 
