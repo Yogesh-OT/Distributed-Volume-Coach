@@ -201,13 +201,19 @@ For every proposal, the engine computes the new plan and returns Before → Afte
 ## Build order
 
 1. **Done:** the engine, with the exercise library, week plans, session sizing, progression, the volume review and circuits. `server/tests/test_sessions.py` has 34 tests, which run as 121 cases because several check every plan.
-2. **The API:**
-   - Profile fields: mode, goal, days, session length, available items and high-impact.
-   - `GET` today's session and `POST` session logs.
-   - The weekly review.
-   - A "return after a break" rule.
-   - Report endpoints.
-   - An Alembic migration.
+2. **Done: the API** (`server/app/routers/sessions.py`, Alembic `0004`, 11 tests in `tests/test_session_api.py`):
+
+   | Endpoint | What it does |
+   |---|---|
+   | `GET /v1/exercises` | The library, no sign-in needed |
+   | `GET`/`PUT /v1/session-settings` | Mode, goal, days, weekdays, length, items at home, high impact. The first save gives every exercise a starting level by experience; a push-up max places push-ups exactly. |
+   | `GET /v1/exercise-states`, `PUT /v1/exercise-states/{ladder}` | Levels and targets; switch level, or resume after pain |
+   | `POST /v1/sessions` | Today's session, once per day. It also runs the weekly review, the "welcome back" rule after 14+ days off, the readiness check, the rotation A → B → C and paused exercises. |
+   | `GET /v1/sessions/{day}` | Fetch it again |
+   | `POST /v1/session-logs/batch` | Set logs, de-duplicated by ID |
+   | `POST /v1/sessions/{day}/complete` | One progression step per exercise and the circuit level. Doing it twice returns the same summary. |
+   | `GET /v1/report` | Week totals, the week streak, sets per muscle, each exercise's history, weight and waist, and the weekly weight change |
+
 3. **Android:**
    - Onboarding for the mode and goal.
    - A session card on Today.

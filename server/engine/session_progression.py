@@ -182,3 +182,21 @@ def after_circuit(level: int, rating: CircuitRating, previous: CircuitRating | N
             return level + 1, "Next circuit is a step harder."
         return level, "You're at the hardest circuit. Switch to the high-impact moves for more."
     return level, "Same circuit level next time."
+
+
+BREAK_DAYS = 14  # time off after which targets come down
+LONG_BREAK_DAYS = 28  # time off after which the level comes down too
+
+
+def after_break(state: ExerciseState, days_off: int, available: frozenset[Need] = EVERYDAY) -> ExerciseState:
+    """Coming back after time off: 3 steps fewer after 2 weeks, one level easier after 4."""
+    if days_off < BREAK_DAYS:
+        return state
+    lad = ladder(state.ladder)
+    if days_off >= LONG_BREAK_DAYS:
+        easier = previous_usable(lad, state.level, available)
+        if easier is not None:
+            lo, hi = lad.range_for(easier)
+            return ExerciseState(state.ladder, easier, (lo + hi) // 2)
+    lo, _ = lad.range_for(state.level)
+    return replace(state, target=max(lo, state.target - 3 * lad.step), below_range=0)

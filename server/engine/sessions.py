@@ -13,8 +13,10 @@ the starting volume. Earlier pairs in a template are kept first when time is sho
 
 import hashlib
 import math
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
 from enum import StrEnum
+
+from .common import Experience
 
 from .exercises import (
     CARDIO_MOVES,
@@ -22,6 +24,7 @@ from .exercises import (
     EVERYDAY,
     ExerciseState,
     Muscle,
+    LADDERS,
     Need,
     Unit,
     ladder,
@@ -153,6 +156,7 @@ class SessionInput:
     circuit_level: int = 1
     high_impact: bool = False
     seed: str = ""  # varies the circuit moves from session to session
+    paused: frozenset[str] = frozenset()  # ladders stopped for pain until the user says they're fine
 
 
 def sets_for(main: bool, step: int) -> int:
@@ -213,7 +217,11 @@ def _fit_pairs(inp: SessionInput, step: int, light: bool, budget: int) -> list[t
     targets: list[list[int]] = []
     used = 0
     for keys in TEMPLATES[inp.slot.template]:
-        keys = tuple(k for k in keys if ladder(k).usable_levels(inp.available) and (not light or k in MAIN_LADDERS))
+        keys = tuple(
+            k
+            for k in keys
+            if k not in inp.paused and ladder(k).usable_levels(inp.available) and (not light or k in MAIN_LADDERS)
+        )
         if not keys:
             continue
         rest = PAIR_REST_S if len(keys) == 2 else SINGLE_REST_S
@@ -291,3 +299,51 @@ def weekly_sets(sessions: list[Session]) -> dict[Muscle, float]:
             for muscle, weight in ladder(ex.ladder).muscles.items():
                 totals[muscle] += ex.sets * weight
     return totals
+
+
+# Where each ladder starts, by training experience. The first session's test sets
+# correct a wrong guess within a session or two.
+STARTING_LEVELS: dict[Experience, dict[str, int]] = {
+    Experience.BEGINNER: {
+        "push": 3, "pike": 1, "row": 2, "squat": 2, "lunge": 1, "hinge": 1,
+        "curl": 1, "calves": 1, "triceps": 1, "plank": 2, "crunch": 1, "side_plank": 1,
+    },
+    Experience.INTERMEDIATE: {
+        "push": 4, "pike": 2, "row": 3, "squat": 3, "lunge": 1, "hinge": 2,
+        "curl": 1, "calves": 2, "triceps": 2, "plank": 2, "crunch": 2, "side_plank": 2,
+    },
+    Experience.EXPERIENCED: {
+        "push": 4, "pike": 2, "row": 3, "squat": 4, "lunge": 2, "hinge": 3,
+        "curl": 2, "calves": 2, "triceps": 3, "plank": 3, "crunch": 3, "side_plank": 2,
+    },
+}
+
+
+def initial_states(
+    experience: Experience,
+    available: frozenset[Need],
+    push_max: int | None = None,
+    push_level: int | None = None,
+) -> dict[str, ExerciseState]:
+    """Starting levels for every ladder. A push-up max test, if there is one, places
+    the push-up ladder exactly."""
+    states = {}
+    for key, level in STARTING_LEVELS[experience].items():
+        if key == "push" and push_max is not None:
+            states[key] = starting_state(key, push_level or level, available, max_reps=push_max)
+        else:
+            states[key] = starting_state(key, level, available)
+    assert set(states) == set(LADDERS)
+    return states
+
+
+def rotation(goal: Goal, days: int, sessions_done: int) -> WeekSlot:
+    """The next workout: templates repeat in order, so a missed day never skips one."""
+    slots = week_plan(goal, days)
+    return slots[sessions_done % len(slots)]
+
+
+def session_to_dict(session: Session) -> dict:
+    out = asdict(session)
+    out["total_sets"] = session.total_sets
+    return out

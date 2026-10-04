@@ -105,6 +105,11 @@ See `docs/ux-references.md`.
   - `engine/session_progression.py`: per-exercise steps after a session, the weekly volume review and circuit levels.
   - `tests/test_sessions.py`: 121 cases. They check every major muscle twice a week and that every session fits its length. The whole suite is 188 passing.
 - **The report page** (the user asked for it) is designed in the same doc: week totals, sets per muscle, exercise progress, history, and body trend.
+- **Later that night: the session API** (`app/routers/sessions.py`, models, schemas, Alembic `0004`, `tests/test_session_api.py`).
+  - Endpoints are listed in the design doc's build order.
+  - The suite is 204 passing, and `alembic check` is clean.
+  - The local `dev.db` was upgraded to `0004`; the backup is `dev.db.bak-20261004-2215`.
+  - The user had about 20% of their session budget left, so Android work waits for the next session.
 
 ## Product direction (decided by the user on 2026-10-04)
 
@@ -119,7 +124,7 @@ See `docs/ux-references.md`.
   - The coach explains plans, answers questions and adapts within the engine's limits via tool calls. It never invents numbers.
   - Load the `claude-api` skill before writing any coach code.
 
-## Where we left off (2026-10-04, about 21:45)
+## Where we left off (2026-10-04, about 22:20)
 
 - **The phone runs v6** (`398bc21`, weekly progression). It installed over v5 and kept its data. Permissions are granted, Battery saver is set to No restrictions, and the user says Autostart is on (`appops` still reads `ignore`).
 - **Test in progress (2026-10-04).**
@@ -137,10 +142,13 @@ See `docs/ux-references.md`.
    - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
    - Check in once with the server off, to test the offline fallback plan.
    - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
-3. **Session mode, step 2: the API.** See the build order in `docs/session-mode-and-coach.md`.
-   - Profile fields: mode, goal, days, session length, available items and high-impact.
-   - Today's session, session logs, the weekly review, a return-after-a-break rule, report endpoints and an Alembic migration.
-   - Then Android (the session player and the report), then the coach. Load the `claude-api` skill first.
+3. **Session mode, step 3: Android.** The server API is done. Next on the phone:
+   - onboarding for mode and goal (`PUT /v1/session-settings`)
+   - a session card on Today
+   - the session player: get-ready countdown, set screen, effort buttons, rest timer in a foreground service, quit reasons
+   - the summary, how-to from `GET /v1/exercises`, and the report screen
+   - Room tables for offline logs
+   - Then the coach. Load the `claude-api` skill first.
 4. **Then the rest of phase 2.** Weekly progression and the max-test-due card are done (session 3):
    - The Hard-set model with the simulator.
    - Health Connect sleep.

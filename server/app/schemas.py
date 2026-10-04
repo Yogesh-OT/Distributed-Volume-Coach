@@ -231,3 +231,168 @@ class ProgressOut(BaseModel):
     days: list[DayOut]
     weights: list[WeightOut]
     streak: StreakOut
+
+
+# --- Session mode ---
+
+from engine.exercises import EVERYDAY, LADDERS, Need  # noqa: E402
+
+NeedName = Literal[tuple(n.value for n in Need)]  # type: ignore[valid-type]
+LadderName = Literal[tuple(LADDERS)]  # type: ignore[valid-type]
+DEFAULT_WEEKDAYS = {2: [0, 3], 3: [0, 2, 4], 4: [0, 1, 3, 4]}
+
+
+class SessionSettingsIn(BaseModel):
+    mode: Literal["sessions", "spread"] = "sessions"
+    goal: Literal["muscle", "fit"]
+    days_per_week: int = Field(ge=2, le=4)
+    session_minutes: Literal[20, 30, 45]
+    weekdays: list[int] = Field(default_factory=list, description="0 = Monday; empty picks evenly spread days")
+    # What's at home. Defaults to things nearly every home has: a wall, a chair, a doorway, a smooth floor.
+    available: list[NeedName] = Field(default_factory=lambda: sorted(n.value for n in EVERYDAY))
+    high_impact: bool = False
+
+    @model_validator(mode="after")
+    def _check_days(self) -> "SessionSettingsIn":
+        if not self.weekdays:
+            self.weekdays = DEFAULT_WEEKDAYS[self.days_per_week]
+        if len(set(self.weekdays)) != self.days_per_week or not all(0 <= d <= 6 for d in self.weekdays):
+            raise ValueError("Pick one different weekday (0-6) for each training day.")
+        self.weekdays = sorted(set(self.weekdays))
+        self.available = sorted(set(self.available))
+        return self
+
+
+class SessionSettingsOut(SessionSettingsIn):
+    model_config = ConfigDict(from_attributes=True)
+
+    updated_at: dt.datetime
+
+
+class ExerciseStateIn(BaseModel):
+    level: int | None = Field(default=None, ge=1, le=10)
+    paused: bool | None = None
+
+
+class ExerciseStateOut(BaseModel):
+    ladder: str
+    title: str
+    level: int
+    name: str
+    target: int
+    unit: str
+    rep_range: tuple[int, int]
+    each_side: bool
+    paused: bool
+
+
+class SessionStartIn(BaseModel):
+    date: dt.date
+    sleep_quality: int | None = Field(default=None, ge=1, le=5)
+    soreness: int | None = Field(default=None, ge=1, le=5)
+    energy: int | None = Field(default=None, ge=1, le=5)
+
+    @model_validator(mode="after")
+    def _all_or_none(self) -> "SessionStartIn":
+        answers = (self.sleep_quality, self.soreness, self.energy)
+        if any(a is None for a in answers) and any(a is not None for a in answers):
+            raise ValueError("Answer all three check-in questions, or none.")
+        return self
+
+
+class SessionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    date: dt.date
+    template: str
+    goal: str
+    minutes: int
+    volume_step: int
+    readiness: float | None
+    payload: dict
+    engine_version: str
+    completed_at: dt.datetime | None
+    summary: dict | None
+
+
+class SessionLogIn(BaseModel):
+    id: uuid.UUID
+    date: dt.date
+    ladder: LadderName
+    exercise_key: str = Field(max_length=32)
+    level: int = Field(ge=1, le=10)
+    set_number: int = Field(ge=1, le=10)
+    target: int = Field(ge=1, le=600)
+    done: int = Field(ge=0, le=600)
+    effort: Literal["easy", "good", "hard", "max"] = "good"
+    tested: bool = False
+    pain: bool = False
+    logged_at: AwareDatetime
+
+
+class SessionLogBatchIn(BaseModel):
+    logs: list[SessionLogIn] = Field(min_length=1, max_length=300)
+
+
+class SessionCompleteIn(BaseModel):
+    finished: bool
+    quit_reason: Literal["too_hard", "dont_know_how", "no_time", "pain", "just_looking"] | None = None
+    circuit_rating: Literal["easy", "good", "hard", "too_hard"] | None = None
+
+
+class StepOut(BaseModel):
+    ladder: str
+    decision: str
+    note: str
+
+
+class SessionSummaryOut(BaseModel):
+    date: dt.date
+    finished: bool
+    sets_done: int
+    steps: list[StepOut]
+    circuit_note: str | None = None
+
+
+class MuscleSetsOut(BaseModel):
+    muscle: str
+    sets: float
+
+
+class WeekSummaryOut(BaseModel):
+    week_start: dt.date
+    sessions: int
+    sets: int
+
+
+class ExerciseHistoryOut(BaseModel):
+    date: dt.date
+    level: int
+    best: int
+
+
+class ExerciseProgressOut(BaseModel):
+    state: ExerciseStateOut
+    history: list[ExerciseHistoryOut]
+
+
+class WaistOut(BaseModel):
+    measured_on: dt.date
+    waist_cm: float
+
+
+class ReportOut(BaseModel):
+    week_start: dt.date
+    sessions_planned: int
+    sessions_done: int
+    sets_done: int
+    minutes: int
+    week_streak: int
+    best_week_streak: int
+    muscles: list[MuscleSetsOut]
+    target_band: tuple[int, int] = (10, 20)
+    weeks: list[WeekSummaryOut]
+    exercises: list[ExerciseProgressOut]
+    weights: list[WeightOut]
+    waists: list[WaistOut]
+    weekly_weight_change_pct: float | None

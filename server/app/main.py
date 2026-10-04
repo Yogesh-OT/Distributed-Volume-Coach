@@ -10,7 +10,7 @@ from engine import ENGINE_VERSION
 
 from .config import Settings
 from .db import Base, make_engine
-from .routers import body, dev, me, profile, training
+from .routers import body, dev, me, profile, sessions, training
 
 
 def create_app(settings: Settings | None = None, clock: Callable[[], dt.datetime] | None = None) -> FastAPI:
@@ -25,7 +25,7 @@ def create_app(settings: Settings | None = None, clock: Callable[[], dt.datetime
     app.state.sessionmaker = sessionmaker(engine, expire_on_commit=False)
     app.state.clock = clock or (lambda: dt.datetime.now(dt.UTC))
 
-    for module in (profile, training, body, me):
+    for module in (profile, training, sessions, body, me):
         app.include_router(module.router)
     if settings.auth_mode == "dev":
         app.include_router(dev.router)

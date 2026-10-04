@@ -162,5 +162,116 @@ class Progression(Base):
     note: Mapped[str] = mapped_column(Text)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
+
+
+# --- Session mode (engine/sessions.py) ---
+
+
+class SessionSettings(Base):
+    __tablename__ = "session_settings"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True)
+    mode: Mapped[str] = mapped_column(String(16))  # sessions or spread
+    goal: Mapped[str] = mapped_column(String(16))  # muscle or fit
+    days_per_week: Mapped[int] = mapped_column(Integer)
+    session_minutes: Mapped[int] = mapped_column(Integer)
+    weekdays: Mapped[list] = mapped_column(JSON, default=list)  # 0 = Monday
+    available: Mapped[list] = mapped_column(JSON, default=list)  # engine.exercises.Need values
+    high_impact: Mapped[bool] = mapped_column(Boolean, default=False)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class ExerciseStateRow(Base):
+    """Where the user is on each ladder. The row with ladder "circuit" holds the circuit level."""
+
+    __tablename__ = "exercise_states"
+    __table_args__ = (UniqueConstraint("user_id", "ladder"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = _user_fk()
+    ladder: Mapped[str] = mapped_column(String(16))
+    level: Mapped[int] = mapped_column(Integer)
+    target: Mapped[int] = mapped_column(Integer)
+    below_range: Mapped[int] = mapped_column(Integer, default=0)
+    paused: Mapped[bool] = mapped_column(Boolean, default=False)  # stopped for pain
+    last_rating: Mapped[str | None] = mapped_column(String(16))  # circuits only
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class SessionPlan(Base):
+    __tablename__ = "session_plans"
+    __table_args__ = (UniqueConstraint("user_id", "date"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = _user_fk()
+    date: Mapped[dt.date] = mapped_column(Date)
+    template: Mapped[str] = mapped_column(String(16))
+    goal: Mapped[str] = mapped_column(String(16))
+    minutes: Mapped[int] = mapped_column(Integer)  # estimated length
+    volume_step: Mapped[int] = mapped_column(Integer)
+    sleep_quality: Mapped[int | None] = mapped_column(Integer)
+    soreness: Mapped[int | None] = mapped_column(Integer)
+    energy: Mapped[int | None] = mapped_column(Integer)
+    readiness: Mapped[float | None] = mapped_column(Float)
+    payload: Mapped[dict] = mapped_column(JSON)  # engine.sessions.session_to_dict
+    engine_version: Mapped[str] = mapped_column(String(16))
+    completed_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+    finished: Mapped[bool | None] = mapped_column(Boolean)
+    quit_reason: Mapped[str | None] = mapped_column(String(16))
+    summary: Mapped[dict | None] = mapped_column(JSON)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class SessionSetLog(Base):
+    __tablename__ = "session_set_logs"
+    __table_args__ = (Index("ix_session_set_logs_user_date", "user_id", "date"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)  # made on the phone
+    user_id: Mapped[str] = _user_fk()
+    session_id: Mapped[int] = mapped_column(Integer, ForeignKey("session_plans.id", ondelete="CASCADE"), index=True)
+    date: Mapped[dt.date] = mapped_column(Date)
+    ladder: Mapped[str] = mapped_column(String(16))
+    exercise_key: Mapped[str] = mapped_column(String(32))
+    level: Mapped[int] = mapped_column(Integer)
+    set_number: Mapped[int] = mapped_column(Integer)
+    target: Mapped[int] = mapped_column(Integer)
+    done: Mapped[int] = mapped_column(Integer)  # reps, or seconds for holds
+    effort: Mapped[str] = mapped_column(String(8))  # easy, good, hard, max
+    tested: Mapped[bool] = mapped_column(Boolean, default=False)  # the last set, as far as form allows
+    pain: Mapped[bool] = mapped_column(Boolean, default=False)
+    logged_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True))
+    received_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class SessionReview(Base):
+    """The weekly volume review's outcome. See engine/session_progression.py."""
+
+    __tablename__ = "session_reviews"
+    __table_args__ = (UniqueConstraint("user_id", "week_start"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = _user_fk()
+    week_start: Mapped[dt.date] = mapped_column(Date)
+    volume_step: Mapped[int] = mapped_column(Integer)
+    decision: Mapped[str] = mapped_column(String(24))
+    note: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
 # Tables that hold per-user rows, in a safe deletion order (users last).
-USER_TABLES = (SetLog, Plan, Checkin, Progression, BodyMeasurement, MaxTest, Profile, Consent)
+USER_TABLES = (
+    SessionSetLog,
+    SessionPlan,
+    SessionReview,
+    ExerciseStateRow,
+    SessionSettings,
+    SetLog,
+    Plan,
+    Checkin,
+    Progression,
+    BodyMeasurement,
+    MaxTest,
+    Profile,
+    Consent,
+)

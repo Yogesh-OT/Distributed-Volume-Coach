@@ -291,3 +291,46 @@ def test_circuit_levels():
     assert after_circuit(2, CircuitRating.GOOD, None, True)[0] == 2
     assert after_circuit(2, CircuitRating.HARD, None, False)[0] == 1
     assert after_circuit(1, CircuitRating.TOO_HARD, None, True)[0] == 1
+
+
+# --- coming back, starting levels, rotation and the report ---
+
+import datetime as dt  # noqa: E402
+
+from engine.common import Experience  # noqa: E402
+from engine.report import logged_muscle_sets, week_streak, weekly_weight_change  # noqa: E402
+from engine.session_progression import after_break  # noqa: E402
+from engine.sessions import initial_states, rotation  # noqa: E402
+
+
+def test_coming_back_after_a_break():
+    assert after_break(PUSH, 10) == PUSH
+    assert after_break(PUSH, 15).target == 7  # 10 - 3
+    assert after_break(PUSH, 30) == ExerciseState("push", 3, 10)  # one level easier, mid-range
+
+
+def test_initial_states_use_the_push_up_max():
+    states = initial_states(Experience.BEGINNER, EVERYDAY, push_max=20, push_level=4)
+    assert states["push"] == ExerciseState("push", 4, 14)
+    assert states["row"].level == 1  # no table: doorway rows
+    assert set(states) == set(LADDERS)
+
+
+def test_rotation_never_skips_a_workout():
+    assert [rotation(Goal.MUSCLE, 3, n).template for n in range(5)] == ["A", "B", "C", "A", "B"]
+
+
+def test_paused_exercises_are_left_out():
+    session = build_session(SessionInput(Goal.MUSCLE, WeekSlot("A"), 30, STATES, paused=frozenset({"row"})))
+    assert "row" not in {ex.ladder for ex in session.exercises}
+
+
+def test_report_numbers():
+    sets = logged_muscle_sets(["push", "push", "row"])
+    assert sets[Muscle.CHEST] == 2 and sets[Muscle.TRICEPS] == 1 and sets[Muscle.BACK] == 1
+    mon = dt.date(2026, 10, 5)
+    weeks = {mon - dt.timedelta(days=7 * i): n for i, n in enumerate([1, 3, 3, 2, 3])}
+    assert week_streak(weeks, 3, mon) == (2, 2)  # this week (1) isn't met yet and doesn't break it
+    weights = [(mon - dt.timedelta(days=d), kg) for d, kg in [(1, 79.0), (3, 79.0), (9, 80.0)]]
+    assert weekly_weight_change(weights, mon) == -1.25
+    assert weekly_weight_change(weights[:2], mon) is None
