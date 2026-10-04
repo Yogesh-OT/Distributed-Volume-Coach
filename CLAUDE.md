@@ -142,7 +142,9 @@ See `docs/ux-references.md`.
    - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
    - Check in once with the server off, to test the offline fallback plan.
    - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
-3. **Session mode, step 3: Android.** The server API is done. Next on the phone:
+3. **Session mode, step 3: Android.** The server API is done, and so is the phone's network layer:
+   `data/remote/SessionDtos.kt`, ten `CoachApi` calls, and `SessionDtosTest`, which decodes the real responses in `shared/session_samples.json`.
+   `tests/test_session_api.py` rewrites that file on every run. Next on the phone:
    - onboarding for mode and goal (`PUT /v1/session-settings`)
    - a session card on Today
    - the session player: get-ready countdown, set screen, effort buttons, rest timer in a foreground service, quit reasons
