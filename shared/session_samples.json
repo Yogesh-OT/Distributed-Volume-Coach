@@ -1227,7 +1227,7 @@
     }
    }
   ],
-  "minutes": 30,
+  "minutes": 29,
   "muscles": [
    {
     "muscle": "chest",
@@ -1239,11 +1239,11 @@
    },
    {
     "muscle": "shoulders",
-    "sets": 4.5
+    "sets": 3.5
    },
    {
     "muscle": "triceps",
-    "sets": 3.0
+    "sets": 2.5
    },
    {
     "muscle": "biceps",
@@ -1272,7 +1272,7 @@
   ],
   "sessions_done": 1,
   "sessions_planned": 3,
-  "sets_done": 16,
+  "sets_done": 15,
   "target_band": [
    10,
    20
@@ -1319,7 +1319,7 @@
    },
    {
     "sessions": 1,
-    "sets": 16,
+    "sets": 15,
     "week_start": "2026-10-05"
    }
   ],
@@ -1330,13 +1330,13 @@
   "date": "2026-10-05",
   "engine_version": "0.1.0",
   "goal": "muscle",
-  "minutes": 30,
+  "minutes": 29,
   "payload": {
    "circuit": null,
    "goal": "muscle",
    "light": false,
-   "minutes": 30,
-   "note": "4 pairs, 16 sets. Rest 60 s between sets in a pair.",
+   "minutes": 29,
+   "note": "4 pairs, 15 sets. Rest 60 s between sets in a pair.",
    "notes": [],
    "pairs": [
     [
@@ -1460,7 +1460,7 @@
        15
       ],
       "rest_s": 60,
-      "sets": 3,
+      "sets": 2,
       "target": 6,
       "test_last_set": true,
       "unit": "reps"
@@ -1486,7 +1486,7 @@
    ],
    "template": "A",
    "title": "Full body A",
-   "total_sets": 16,
+   "total_sets": 15,
    "warmup_s": 180
   },
   "readiness": null,
@@ -1687,7 +1687,7 @@
   "circuit_note": null,
   "date": "2026-10-05",
   "finished": true,
-  "sets_done": 16,
+  "sets_done": 15,
   "steps": [
    {
     "decision": "up_reps",
