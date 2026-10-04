@@ -238,15 +238,21 @@ def _fit_pairs(inp: SessionInput, step: int, light: bool, budget: int) -> list[t
     grew = True
     while grew:
         grew = False
+        # Once an exercise can't fit another set, later ones of the same kind stop at its
+        # count, so a cheap pike push-up never gets more sets than the squat before it.
+        caps = {True: 4, False: 3}  # the most sets_for gives main movements and extras
         for i, j in order:
             ex = chosen[i][j]
+            main = ex.ladder in MAIN_LADDERS
             if ex.sets >= targets[i][j]:
                 continue
             extra = ladder(ex.ladder).set_seconds(ex.level, ex.target) + ex.rest_s
-            if used + extra <= budget:
+            if used + extra <= budget and ex.sets < caps[main]:
                 chosen[i][j] = replace(ex, sets=ex.sets + 1)
                 used += extra
                 grew = True
+            else:
+                caps[main] = min(caps[main], ex.sets)
     return [tuple(pair) for pair in chosen]
 
 

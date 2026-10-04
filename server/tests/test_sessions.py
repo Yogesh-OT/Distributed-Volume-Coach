@@ -334,3 +334,14 @@ def test_report_numbers():
     weights = [(mon - dt.timedelta(days=d), kg) for d, kg in [(1, 79.0), (3, 79.0), (9, 80.0)]]
     assert weekly_weight_change(weights, mon) == -1.25
     assert weekly_weight_change(weights[:2], mon) is None
+
+
+def test_earlier_main_movements_never_get_fewer_sets():
+    # Split squats (each side) cost more time than pike push-ups; the squat comes first in
+    # the template, so the pike push-up mustn't end up with more sets.
+    states = initial_states(Experience.INTERMEDIATE, EVERYDAY, push_max=20, push_level=4)
+    for minutes in SESSION_LENGTHS:
+        for template in TEMPLATES:
+            session = build_session(SessionInput(Goal.MUSCLE, WeekSlot(template), minutes, states))
+            mains = [ex.sets for ex in session.exercises if ex.ladder in MAIN_LADDERS]
+            assert mains == sorted(mains, reverse=True), (template, minutes, mains)
