@@ -87,6 +87,19 @@ See `docs/ux-references.md`.
 - **The planner's percentage** is now the real reps ÷ max: 5 of 12 shows 42%, not 45%.
 - **The Today screen** shows a "Max test due" card 14 days after the last max test.
 
+## Product direction (decided by the user on 2026-10-04)
+
+- **The app grows into a coach-led home-workout app**, using Home Workout – No Equipment as the UX reference (`docs/ux-references.md`).
+- **Equipment:** bodyweight only for the first version.
+- **Goals at launch:** build muscle, and get fit / lose fat.
+  - Build muscle needs a **session mode**: sets about 0–3 reps from failure, 60–90 s rest (Singer 2024: rest beyond about 90 s gave no extra benefit), and 10–20 hard sets per muscle per week, with progression.
+  - The current spread-out micro-sets (about 40% of max, hours apart) suit strength, skill and habit, not hypertrophy.
+- **Spread-out sets stay as a second mode.** It's a differentiator.
+- **Coach:** an AI chat coach (Claude via the API) sitting on top of the engine.
+  - The engine owns all numbers: sets, reps, rest, volume and progression, all tested.
+  - The coach explains plans, answers questions and adapts within the engine's limits via tool calls. It never invents numbers.
+  - Load the `claude-api` skill before writing any coach code.
+
 ## Where we left off (2026-10-04, about 15:25)
 
 - **The phone runs v6** (`398bc21`, weekly progression). It installed over v5 and kept its data. Permissions are granted, Battery saver is set to No restrictions, and the user says Autostart is on (`appops` still reads `ignore`).
