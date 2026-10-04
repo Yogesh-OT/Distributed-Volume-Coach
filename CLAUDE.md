@@ -87,13 +87,16 @@ See `docs/ux-references.md`.
 - **The planner's percentage** is now the real reps ÷ max: 5 of 12 shows 42%, not 45%.
 - **The Today screen** shows a "Max test due" card 14 days after the last max test.
 
-## Where we left off (2026-10-04, about 00:10)
+## Where we left off (2026-10-04, about 15:25)
 
-- **The phone runs v5** (`719d48e` and later docs commits). Its data is intact and permissions are granted: notifications, Alarms & reminders, and Battery saver set to No restrictions (DV Coach is on the battery whitelist).
-- **Autostart:** the user says it's on, but `appops` still read `MIUIOP(10008): ignore`. Confirm by checking whether a sync or reminder works while the app is fully closed.
-- **The user's account:** a max of 20 standard push-ups (level 4) on 2026-10-03, so the next test at that level is on 2026-10-17. Trying it earlier showed the "14 days apart" message, which is correct. Streak: 1 day (3 Oct).
-- **The server is stopped.** Start it again for any phone test.
-- **Backups:** `server/dev.db.bak-*` (from before the level migration) and the phone app data in `D:\Android\backup\*.tar`.
+- **The phone runs v6** (`398bc21`, weekly progression). It installed over v5 and kept its data. Permissions are granted, Battery saver is set to No restrictions, and the user says Autostart is on (`appops` still reads `ignore`).
+- **Test in progress (2026-10-04).**
+  - The 15:20 check-in planned 4 sets of 8 (beginner load 40% of 20) at 15:58, 16:50, 17:44 and 18:37, all exact alarms.
+  - The weekly review row for the week of 2026-09-28 says `not_enough_data`, which is correct.
+  - s1 was logged **Hard** at 15:20 from the app (early). Verified: the remaining sets moved to 17:20 and 18:14 at 6 reps, the 18:37 set was dropped past the 19:00 window end, and the streak went to 2 with `today_on_plan` true.
+  - **Still to verify:** Snooze from the notification at 17:20 should move the set to about 17:35. Done from the notification at 17:35 should be logged offline, because the dev server stops at about 17:15. Then restart the server and confirm the upload on app open.
+- **The user's account:** max 20 standard push-ups (level 4) on 2026-10-03, so the next test at that level is on 2026-10-17. Streak: 2 (3 and 4 Oct).
+- **Backups:** `server/dev.db.bak-*` (from before migrations 0002 and 0003) and the phone app data in `D:\Android\backup\*.tar` (latest: `dvcoach-data-before-v6.tar`).
 
 ## Next up
 
