@@ -144,5 +144,23 @@ class SetLog(Base):
     received_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
 
+
+class Progression(Base):
+    """One row per user, exercise and week: the outcome of that week's review. See engine/progression.py."""
+
+    __tablename__ = "progressions"
+    __table_args__ = (UniqueConstraint("user_id", "exercise", "week_start"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[str] = _user_fk()
+    exercise: Mapped[str] = mapped_column(String(32))
+    week_start: Mapped[dt.date] = mapped_column(Date)  # a Monday
+    extra_sets: Mapped[int] = mapped_column(Integer, default=0)
+    extra_reps: Mapped[int] = mapped_column(Integer, default=0)
+    last_step: Mapped[str | None] = mapped_column(String(8))  # sets or reps
+    decision: Mapped[str] = mapped_column(String(24))
+    note: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
 # Tables that hold per-user rows, in a safe deletion order (users last).
-USER_TABLES = (SetLog, Plan, Checkin, BodyMeasurement, MaxTest, Profile, Consent)
+USER_TABLES = (SetLog, Plan, Checkin, Progression, BodyMeasurement, MaxTest, Profile, Consent)

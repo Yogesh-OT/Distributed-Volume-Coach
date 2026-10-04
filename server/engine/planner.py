@@ -27,6 +27,7 @@ from .common import (
 )
 from .levels import DEFAULT_LEVEL, level as level_info
 from .plan import Plan, PlanKind, PlannedSet, Policy
+from .progression import rep_ceiling
 from .readiness import describe, readiness
 
 MOBILITY_ONLY_BELOW = 0.25
@@ -49,10 +50,19 @@ class PlannerInput:
     energy: int
     seed: str  # makes slot jitter repeatable, e.g. "<user id>:<date>"
     level: int = DEFAULT_LEVEL  # the level the max test was done at
+    extra_sets: int = 0  # from the weekly review, see engine/progression.py
+    extra_reps: int = 0
+    progression_note: str | None = None  # why this week differs, added to the reason
 
 
-def base_set_count(experience: Experience, prompt_limit: int, window_minutes: int) -> int:
-    return max(0, min(SET_CAP[experience], prompt_limit, window_minutes // 60))
+def set_limits(experience: Experience, prompt_limit: int, window_minutes: int) -> tuple[int, int]:
+    """(sets before progression, most sets the prompt limit and window allow)."""
+    limit = min(prompt_limit, window_minutes // 60)
+    return min(SET_CAP[experience], limit), limit
+
+
+def base_reps_for(experience: Experience, max_reps: int) -> int:
+    return max(1, round_half_up(LOAD[experience] * max_reps))
 
 
 def build_plan(inp: PlannerInput) -> Plan:
@@ -88,9 +98,11 @@ def build_plan(inp: PlannerInput) -> Plan:
     if ready < MOBILITY_ONLY_BELOW:
         return plan(PlanKind.MOBILITY, [], f"{summary}: no {name} today. Gentle mobility only, and rest.")
 
-    base = base_set_count(experience, inp.prompt_limit, window_end - window_start)
-    wanted = max(1, round_half_up(base * (0.6 + 0.4 * ready)))
-    reps = max(1, round_half_up(load * inp.max_reps))
+    base, limit = set_limits(experience, inp.prompt_limit, window_end - window_start)
+    sets_today = max(1, min(base + inp.extra_sets, limit))
+    wanted = max(1, round_half_up(sets_today * (0.6 + 0.4 * ready)))
+    base_reps = base_reps_for(experience, inp.max_reps)
+    reps = max(1, min(base_reps + inp.extra_reps, rep_ceiling(inp.max_reps, base_reps)))
 
     start = max(window_start, to_minutes(inp.checkin_time) + CHECKIN_LEAD_MIN)
     available = window_end - start
@@ -105,10 +117,12 @@ def build_plan(inp: PlannerInput) -> Plan:
     sets_word = "set" if count == 1 else "sets"
     reason = (
         f"{summary}: {count} {sets_word} of {reps} {level.plural} "
-        f"({round_half_up(load * 100)}% of your {inp.max_reps}-rep max)."
+        f"({round_half_up(reps / inp.max_reps * 100)}% of your {inp.max_reps}-rep max)."
     )
     if count < wanted:
         reason += f" {wanted - count} fewer than usual because of the late check-in."
+    if inp.progression_note:
+        reason += f" This week: {inp.progression_note}"
     return plan(PlanKind.TRAINING, sets, reason)
 
 

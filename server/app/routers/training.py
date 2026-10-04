@@ -5,9 +5,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from engine import progress as progress_engine
+from engine.common import experience_for, to_minutes
 from engine.levels import suggest
 from engine.plan import PlanKind
-from engine.planner import PlannerInput, build_plan
+from engine.planner import PlannerInput, base_reps_for, build_plan, set_limits
+from engine.progression import Progression as ProgressionState
+from engine.progression import WeekStats, review_week, week_start
 from engine.readiness import readiness
 from engine.safety import max_test_eligibility
 from engine.streak import DayRecord, compute_streak
@@ -15,7 +18,7 @@ from engine.streak import DayRecord, compute_streak
 from ..auth import current_user
 from ..db import get_db
 from ..errors import api_error
-from ..models import BodyMeasurement, Checkin, MaxTest, Plan, SetLog, User
+from ..models import BodyMeasurement, Checkin, MaxTest, Plan, Profile, Progression, SetLog, User
 from ..schemas import (
     CheckinIn,
     DayOut,
@@ -65,6 +68,12 @@ def record_max_test(
 
     test = MaxTest(user_id=user.id, exercise=body.exercise, reps=body.reps, level=body.level, tested_on=body.tested_on)
     db.add(test)
+    db.flush()
+    # Reps are sized from the max, so a new max replaces any reps added by weekly reviews.
+    week = _progression_for(db, user, body.exercise, body.tested_on, profile, test)
+    if week.extra_reps:
+        week.extra_reps = 0
+        week.note = f"{week.note} Reps re-sized from your new max test."
     db.commit()
     tip = suggest(test.level, test.reps)
     return MaxTestResultOut(
@@ -95,6 +104,7 @@ def check_in(
     if max_test is None:
         raise api_error(409, "max_test_required", "Do a max test first so the plan can be sized for you.")
     profile = latest_profile(db, user)
+    week = _progression_for(db, user, body.exercise, body.date, profile, max_test)
 
     plan = build_plan(
         PlannerInput(
@@ -112,6 +122,9 @@ def check_in(
             energy=body.energy,
             seed=f"{user.id}:{body.date.isoformat()}",
             level=max_test.level,
+            extra_sets=week.extra_sets,
+            extra_reps=week.extra_reps,
+            progression_note=week.note if week.decision in CHANGES else None,
         )
     )
 
@@ -136,6 +149,91 @@ def check_in(
     db.commit()
     response.status_code = 201
     return row
+
+
+# Review outcomes that change the plan, and so are worth mentioning in its reason.
+CHANGES = {"up_sets", "up_reps", "down_sets", "down_reps", "at_ceiling"}
+
+
+def _progression_for(
+    db: Session, user: User, exercise: str, day: dt.date, profile: Profile, max_test: MaxTest
+) -> Progression:
+    """This week's progression, reviewing last week first if this is the week's first visit."""
+    start = week_start(day)
+    row = db.scalar(
+        select(Progression).where(
+            Progression.user_id == user.id, Progression.exercise == exercise, Progression.week_start == start
+        )
+    )
+    if row is not None:
+        return row
+
+    previous = db.scalar(
+        select(Progression)
+        .where(Progression.user_id == user.id, Progression.exercise == exercise, Progression.week_start < start)
+        .order_by(Progression.week_start.desc())
+        .limit(1)
+    )
+    current = (
+        ProgressionState(previous.extra_sets, previous.extra_reps, previous.last_step)
+        if previous
+        else ProgressionState()
+    )
+    experience = experience_for(profile.training_months)
+    base_sets, set_limit = set_limits(
+        experience, profile.prompt_limit, to_minutes(profile.window_end) - to_minutes(profile.window_start)
+    )
+    review = review_week(
+        _week_stats(db, user, exercise, start - dt.timedelta(days=7)),
+        current,
+        base_sets=base_sets,
+        set_limit=set_limit,
+        base_reps=base_reps_for(experience, max_test.reps),
+        max_reps=max_test.reps,
+    )
+    row = Progression(
+        user_id=user.id,
+        exercise=exercise,
+        week_start=start,
+        extra_sets=review.progression.extra_sets,
+        extra_reps=review.progression.extra_reps,
+        last_step=review.progression.last_step,
+        decision=review.decision,
+        note=review.note,
+    )
+    db.add(row)
+    db.flush()
+    return row
+
+
+def _week_stats(db: Session, user: User, exercise: str, start: dt.date) -> WeekStats:
+    """Planned and done sets for the week from `start`. Days stopped for pain are left out:
+    stopping for pain is a safety rule, not a sign the plan was too hard."""
+    end = start + dt.timedelta(days=6)
+    plans = db.scalars(
+        select(Plan).where(
+            Plan.user_id == user.id,
+            Plan.exercise == exercise,
+            Plan.kind == "training",
+            Plan.date >= start,
+            Plan.date <= end,
+        )
+    ).all()
+    logs = db.scalars(
+        select(SetLog).where(
+            SetLog.user_id == user.id, SetLog.exercise == exercise, SetLog.date >= start, SetLog.date <= end
+        )
+    ).all()
+    pain_days = {log.date for log in logs if log.rating == "pain"}
+    days = [p for p in plans if p.date not in pain_days]
+    counted = {p.date for p in days}
+    done = [log for log in logs if log.date in counted and log.rating not in ("skipped", "pain") and log.done_reps > 0]
+    return WeekStats(
+        training_days=len(days),
+        sets_planned=sum(len(p.sets) for p in days),
+        sets_done=len(done),
+        hard_sets=sum(1 for log in done if log.rating == "hard"),
+    )
 
 
 def _save_checkin(db: Session, user: User, body: CheckinIn) -> None:

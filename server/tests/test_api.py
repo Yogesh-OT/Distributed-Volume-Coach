@@ -228,7 +228,7 @@ def test_max_tests_carry_a_level_and_a_suggestion(client):
 
     plan = client.post("/v1/checkins", json=CHECKIN, headers=ALICE).json()
     assert plan["level"] == 3 and plan["max_reps"] == 12
-    assert "of 5 knee push-ups (45% of your 12-rep max)" in plan["reason"]
+    assert "of 5 knee push-ups (42% of your 12-rep max)" in plan["reason"]  # 5 of 12, the real share
 
 
 def test_streak_counts_days_on_plan(client):
@@ -246,3 +246,72 @@ def test_streak_counts_days_on_plan(client):
         "rest_pass_days": [],
     }
     assert client.get("/v1/progress", headers=ALICE).json()["streak"]["current"] == 1
+
+
+class Clock:
+    """A clock the test can move day by day. Times are 07:40 in Asia/Kolkata."""
+
+    def __init__(self, day: dt.date):
+        self.set(day)
+
+    def set(self, day: dt.date):
+        self.now = dt.datetime(day.year, day.month, day.day, 2, 10, tzinfo=dt.UTC)
+
+    def __call__(self):
+        return self.now
+
+
+def _train_week(c, monday: dt.date, clock: Clock, rating: str = "solid"):
+    """Check in Monday to Friday and log every planned set with `rating`."""
+    for offset in range(5):
+        day = monday + dt.timedelta(days=offset)
+        clock.set(day)
+        plan = c.post("/v1/checkins", json={**CHECKIN, "date": day.isoformat()}, headers=ALICE).json()
+        logs = [
+            {
+                **log(s["ref"], rating, s["at"], done_reps=s["target_reps"]),
+                "date": day.isoformat(),
+                "logged_at": f"{day.isoformat()}T{s['at']}:00+05:30",
+            }
+            for s in plan["sets"]
+        ]
+        c.post("/v1/set-logs/batch", json={"logs": logs}, headers=ALICE)
+    return plan
+
+
+def test_strong_week_adds_a_set_next_week():
+    monday = dt.date(2026, 9, 28)
+    clock = Clock(monday)
+    settings = Settings(database_url="sqlite://", auth_mode="dev", create_tables=True)
+    with TestClient(create_app(settings, clock=clock)) as c:
+        onboard(c)
+        c.post("/v1/max-tests", json={"reps": 20, "tested_on": monday.isoformat()}, headers=ALICE)
+        week1 = _train_week(c, monday, clock)
+        assert len(week1["sets"]) == 6 and "This week" not in week1["reason"]  # first week: baseline
+
+        next_monday = monday + dt.timedelta(days=7)
+        clock.set(next_monday)
+        week2 = c.post("/v1/checkins", json={**CHECKIN, "date": next_monday.isoformat()}, headers=ALICE).json()
+        assert len(week2["sets"]) == 7  # 8 sets before readiness, 7 after it
+        assert week2["reason"].endswith("This week: +1 set a day after a strong week (100% done, no hard sets).")
+
+
+def test_new_max_test_resets_reps_added_by_reviews():
+    monday = dt.date(2026, 9, 21)
+    clock = Clock(monday)
+    settings = Settings(database_url="sqlite://", auth_mode="dev", create_tables=True)
+    with TestClient(create_app(settings, clock=clock)) as c:
+        onboard(c)
+        c.post("/v1/max-tests", json={"reps": 20, "tested_on": monday.isoformat()}, headers=ALICE)
+        _train_week(c, monday, clock)  # week 1: baseline
+        _train_week(c, monday + dt.timedelta(days=7), clock)  # week 2: +1 set, then trained strongly again
+        week3 = monday + dt.timedelta(days=14)
+        clock.set(week3)
+        plan = c.post("/v1/checkins", json={**CHECKIN, "date": week3.isoformat()}, headers=ALICE).json()
+        assert {s["target_reps"] for s in plan["sets"]} == {10}  # +1 rep this week
+        assert "+1 rep per set" in plan["reason"]
+
+        c.delete(f"/v1/dev/days/{week3.isoformat()}", headers=ALICE)
+        c.post("/v1/max-tests", json={"reps": 24, "tested_on": week3.isoformat()}, headers=ALICE)
+        replanned = c.post("/v1/checkins", json={**CHECKIN, "date": week3.isoformat()}, headers=ALICE).json()
+        assert {s["target_reps"] for s in replanned["sets"]} == {11}  # 45% of 24, no extra rep

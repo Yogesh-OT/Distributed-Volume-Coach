@@ -105,6 +105,7 @@ private fun MainScaffold(repository: Repository) {
                     repository,
                     onCheckIn = { nav.navigate("checkin") },
                     onEditSchedule = { nav.navigate("schedule") },
+                    onMaxTest = { nav.navigate("maxtest") },
                 )
             }
             composable("checkin") { CheckInScreen(repository, onDone = { nav.popBackStack() }) }

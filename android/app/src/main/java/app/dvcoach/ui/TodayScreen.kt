@@ -66,12 +66,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.Locale
 
 /** A set's buttons unlock this many minutes before it's due. */
 private const val EARLY_WINDOW_MIN = 10
+private const val MAX_TEST_EVERY_DAYS = 14L
 
 class TodayViewModel(private val repository: Repository) : ViewModel() {
     val today: StateFlow<Repository.Today?> =
@@ -105,7 +107,7 @@ class TodayViewModel(private val repository: Repository) : ViewModel() {
 }
 
 @Composable
-fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: () -> Unit) {
+fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: () -> Unit, onMaxTest: () -> Unit) {
     val vm = repoViewModel(repository) { TodayViewModel(it) }
     val today by vm.today.collectAsStateWithLifecycle()
     val profile by vm.profile.collectAsStateWithLifecycle()
@@ -121,6 +123,7 @@ fun TodayScreen(repository: Repository, onCheckIn: () -> Unit, onEditSchedule: (
         vm.streak?.let { StreakLine(it) }
         profile?.let { WindowLine(it, onEditSchedule) }
         ReminderCards(reminders)
+        profile?.let { MaxTestDueCard(it, onMaxTest) }
         val t = today
         when {
             t == null -> CircularProgressIndicator()
@@ -228,6 +231,23 @@ private fun StreakLine(streak: StreakDto) {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+/** A new max re-sizes every set, so prompt for one every 14 days at the current level. */
+@Composable
+private fun MaxTestDueCard(profile: LocalProfile, onMaxTest: () -> Unit) {
+    val last = profile.lastMaxTestDate?.let { LocalDate.parse(it) } ?: return
+    if (LocalDate.now().isBefore(last.plusDays(MAX_TEST_EVERY_DAYS))) return
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Max test due", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "It's been ${java.time.temporal.ChronoUnit.DAYS.between(last, LocalDate.now())} days since your last one. " +
+                    "A new max re-sizes your sets. Do it fresh, before your first set of the day.",
+            )
+            Button(onClick = onMaxTest) { Text("Take the max test") }
+        }
     }
 }
 

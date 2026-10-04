@@ -14,6 +14,7 @@ Project context, working agreements and where we left off. The README covers wha
 ## This computer
 
 - **Python 3.14.** The server venv is `server/.venv`; recreate it with `python -m venv .venv` and then `.venv/Scripts/pip install -e ".[dev]"`. `server/.env` sets dev mode and the SQLite `dev.db`.
+- **Windows Smart App Control is On.** It blocks SQLAlchemy's compiled `.pyd` modules ("An Application Control policy has blocked this file"). The venv therefore uses pure-Python SQLAlchemy, reinstalled with `DISABLE_SQLALCHEMY_CEXT=1 .venv/Scripts/python -m pip install --force-reinstall --no-deps --no-binary sqlalchemy sqlalchemy==<version>`. Redo that after any SQLAlchemy upgrade. Don't change the Windows setting. CI on Linux is unaffected.
 - **No Android SDK or Gradle here.** The Android app compiles in GitHub Actions, and every push uploads the `dv-coach-debug-apk` artifact.
   - Download artifacts with Git's stored GitHub credential: `git credential fill` gives a Bearer token for the artifact zip API. Never print the token.
 - **adb** is at `D:\Android\platform-tools\adb.exe`.
@@ -73,6 +74,19 @@ See `docs/ux-references.md`.
   - Today counts only once it's on plan.
 - **Declined for now:** the 14-day block map and rep counting with the phone's sensor.
 
+## Session 3 (2026-10-04): weekly progression
+
+- **Weekly progression** lives in `engine/progression.py` and the `progressions` table (Alembic `0003`).
+  - At the first check-in of each week, the server reviews the week before. Pain-stop days are left out of the review.
+  - Strong week (≥90% done, ≤10% Hard): +1 set, then +1 rep next time, alternating.
+  - Rough week (<70% done or >25% Hard): one step back, reps before sets.
+  - Fewer than 3 training days: no change.
+  - Limits: sets stay within the prompt limit and window, at most +4 over the base, and reps never pass 60% of the max.
+  - A new max test resets the extra reps. The plan's reason ends with "This week: …" when something changed.
+  - The architecture page's "≤15% a week" became "one small step a week", because one set of 6 is already 17%.
+- **The planner's percentage** is now the real reps ÷ max: 5 of 12 shows 42%, not 45%.
+- **The Today screen** shows a "Max test due" card 14 days after the last max test.
+
 ## Where we left off (2026-10-04, about 00:10)
 
 - **The phone runs v5** (`719d48e` and later docs commits). Its data is intact and permissions are granted: notifications, Alarms & reminders, and Battery saver set to No restrictions (DV Coach is on the battery whitelist).
@@ -88,8 +102,7 @@ See `docs/ux-references.md`.
    - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
    - Check in once with the server off, to test the offline fallback plan.
    - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
-3. **Then phase 2:**
-   - Weekly progression and 14-day max tests.
+3. **Then the rest of phase 2.** Weekly progression and the max-test-due card are done (session 3):
    - The Hard-set model with the simulator.
    - Health Connect sleep.
    - Pull-ups.
