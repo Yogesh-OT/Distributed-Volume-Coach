@@ -1,0 +1,1734 @@
+{
+ "library": {
+  "cardio_moves": [
+   {
+    "cue": "Drive your knees up and swing your arms.",
+    "high_impact": "High knees",
+    "key": "knees",
+    "low_impact": "March in place"
+   },
+   {
+    "cue": "Step or jump out wide while your arms go overhead.",
+    "high_impact": "Jumping jacks",
+    "key": "jacks",
+    "low_impact": "Step jacks"
+   },
+   {
+    "cue": "Sit into a squat, then rise or jump up tall.",
+    "high_impact": "Jump squat",
+    "key": "squat_reach",
+    "low_impact": "Squat to calf raise"
+   },
+   {
+    "cue": "In a push-up position, bring one knee at a time to your chest.",
+    "high_impact": "Mountain climbers",
+    "key": "climbers",
+    "low_impact": "Slow mountain climbers"
+   },
+   {
+    "cue": "Step or hop side to side, landing softly on one leg.",
+    "high_impact": "Skater hops",
+    "key": "skaters",
+    "low_impact": "Skater steps"
+   },
+   {
+    "cue": "Hands down, step or jump back to a plank, come back up and stand tall.",
+    "high_impact": "Burpee",
+    "key": "burpee",
+    "low_impact": "Step-back burpee"
+   },
+   {
+    "cue": "Quick straight punches with a light bounce.",
+    "high_impact": "Shadow boxing with a squat",
+    "key": "boxing",
+    "low_impact": "Shadow boxing"
+   },
+   {
+    "cue": "Step back into a lunge and alternate legs.",
+    "high_impact": "Switch lunge",
+    "key": "lunge",
+    "low_impact": "Reverse lunge"
+   }
+  ],
+  "circuit_levels": [
+   {
+    "level": 1,
+    "moves": 4,
+    "rest_s": 40,
+    "rounds": 3,
+    "work_s": 20
+   },
+   {
+    "level": 2,
+    "moves": 4,
+    "rest_s": 30,
+    "rounds": 3,
+    "work_s": 30
+   },
+   {
+    "level": 3,
+    "moves": 4,
+    "rest_s": 30,
+    "rounds": 4,
+    "work_s": 30
+   },
+   {
+    "level": 4,
+    "moves": 4,
+    "rest_s": 20,
+    "rounds": 4,
+    "work_s": 40
+   },
+   {
+    "level": 5,
+    "moves": 5,
+    "rest_s": 20,
+    "rounds": 4,
+    "work_s": 40
+   }
+  ],
+  "ladders": [
+   {
+    "exercises": [
+     {
+      "cue": "Hands on the wall at shoulder height, body straight, chest to the wall.",
+      "each_side": false,
+      "key": "pushup_wall",
+      "level": 1,
+      "name": "Wall push-up",
+      "needs": [
+       "wall"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hands on a sturdy table or bench, body straight, chest to the edge.",
+      "each_side": false,
+      "key": "pushup_incline",
+      "level": 2,
+      "name": "Incline push-up",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Body straight from knees to head; lower until your chest nearly touches.",
+      "each_side": false,
+      "key": "pushup_knee",
+      "level": 3,
+      "name": "Knee push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hands under shoulders, body straight; lower for 2-3 seconds, chest to the floor.",
+      "each_side": false,
+      "key": "pushup_full",
+      "level": 4,
+      "name": "Push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Feet on a chair, hands on the floor; lower your chest all the way.",
+      "each_side": false,
+      "key": "pushup_decline",
+      "level": 5,
+      "name": "Decline push-up",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hands wide; lower towards one hand while the other arm stays straight.",
+      "each_side": true,
+      "key": "pushup_archer",
+      "level": 6,
+      "name": "Archer push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hands by your hips, fingers turned out, lean forward over them.",
+      "each_side": false,
+      "key": "pushup_pseudo_planche",
+      "level": 7,
+      "name": "Pseudo planche push-up",
+      "needs": [],
+      "rep_range": [
+       5,
+       12
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "push",
+    "muscles": {
+     "chest": 1,
+     "shoulders": 0.5,
+     "triceps": 0.5
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Push-up",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Hands on a chair seat, hips high; lower the top of your head towards the seat.",
+      "each_side": false,
+      "key": "pike_hands_up",
+      "level": 1,
+      "name": "Hands-raised pike push-up",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hips high in an upside-down V; lower your head towards the floor in front of your hands.",
+      "each_side": false,
+      "key": "pike_floor",
+      "level": 2,
+      "name": "Pike push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Feet on a chair, hips over your hands; lower your head towards the floor.",
+      "each_side": false,
+      "key": "pike_feet_up",
+      "level": 3,
+      "name": "Feet-raised pike push-up",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Kick up to a handstand against the wall and lower slowly to your head; come down to reset.",
+      "each_side": false,
+      "key": "hspu_negative",
+      "level": 4,
+      "name": "Wall handstand push-up, lowering only",
+      "needs": [
+       "wall"
+      ],
+      "rep_range": [
+       3,
+       8
+      ],
+      "test_last_set": false
+     }
+    ],
+    "key": "pike",
+    "muscles": {
+     "shoulders": 1,
+     "triceps": 0.5
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Pike push-up",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Hold both sides of a door frame, lean back with straight arms, pull your chest to the frame.",
+      "each_side": false,
+      "key": "row_doorway",
+      "level": 1,
+      "name": "Doorway row",
+      "needs": [
+       "doorway"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Lie under a sturdy table, grip the edge, feet flat, pull your chest to the edge.",
+      "each_side": false,
+      "key": "row_table_bent",
+      "level": 2,
+      "name": "Table row, knees bent",
+      "needs": [
+       "table"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above with legs straight and body in one line from heels to head.",
+      "each_side": false,
+      "key": "row_table",
+      "level": 3,
+      "name": "Table row",
+      "needs": [
+       "table"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Heels on a chair so your body is level; pull your chest to the edge.",
+      "each_side": false,
+      "key": "row_table_feet_up",
+      "level": 4,
+      "name": "Table row, feet raised",
+      "needs": [
+       "table",
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "row",
+    "muscles": {
+     "back": 1,
+     "biceps": 0.5
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Row",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Sit back to a chair and stand up without using your hands.",
+      "each_side": false,
+      "key": "squat_chair",
+      "level": 1,
+      "name": "Chair squat",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Feet shoulder-width, sit down between your heels as deep as you can, chest up.",
+      "each_side": false,
+      "key": "squat_bodyweight",
+      "level": 2,
+      "name": "Squat",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Long stride, lower the back knee towards the floor, front heel down.",
+      "each_side": true,
+      "key": "split_squat",
+      "level": 3,
+      "name": "Split squat",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Back foot on a chair; lower until the back knee nearly touches the floor.",
+      "each_side": true,
+      "key": "bulgarian_split_squat",
+      "level": 4,
+      "name": "Bulgarian split squat",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Stand on one leg, hold the other foot behind you, lower the back knee to the floor; a hand on the wall.",
+      "each_side": true,
+      "key": "shrimp_squat_assisted",
+      "level": 5,
+      "name": "Assisted shrimp squat",
+      "needs": [
+       "wall"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "On one leg, sit down to a chair with the other leg straight out, stand back up.",
+      "each_side": true,
+      "key": "pistol_box",
+      "level": 6,
+      "name": "Box pistol squat",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       5,
+       12
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "squat",
+    "muscles": {
+     "glutes": 0.5,
+     "quads": 1
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Squat",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Step back and lower the back knee towards the floor; push up through the front heel.",
+      "each_side": true,
+      "key": "reverse_lunge",
+      "level": 1,
+      "name": "Reverse lunge",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Whole foot on a stair or sturdy step; stand up on it without pushing off the back foot, lower slowly.",
+      "each_side": true,
+      "key": "step_up",
+      "level": 2,
+      "name": "Step-up",
+      "needs": [
+       "step"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Stand on a step and lunge back down to the floor, so the front leg bends deeper.",
+      "each_side": true,
+      "key": "deficit_reverse_lunge",
+      "level": 3,
+      "name": "Deficit reverse lunge",
+      "needs": [
+       "step"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "lunge",
+    "muscles": {
+     "glutes": 0.5,
+     "quads": 1
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Lunge",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "On your back, feet flat, push through the heels and lift your hips; squeeze for a second.",
+      "each_side": false,
+      "key": "glute_bridge",
+      "level": 1,
+      "name": "Glute bridge",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above on one leg, the other knee pulled in.",
+      "each_side": true,
+      "key": "glute_bridge_single",
+      "level": 2,
+      "name": "Single-leg glute bridge",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Shoulders on a sofa or bed edge, feet flat; lower your hips and drive them up.",
+      "each_side": false,
+      "key": "hip_thrust",
+      "level": 3,
+      "name": "Hip thrust",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above on one leg.",
+      "each_side": true,
+      "key": "hip_thrust_single",
+      "level": 4,
+      "name": "Single-leg hip thrust",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "hinge",
+    "muscles": {
+     "glutes": 1,
+     "hamstrings": 0.5
+    },
+    "rep_range": [
+     8,
+     20
+    ],
+    "step": 1,
+    "title": "Hip thrust",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "On your back, heels on a towel, hips up; slide the heels in and back out slowly.",
+      "each_side": false,
+      "key": "leg_curl_slide",
+      "level": 1,
+      "name": "Sliding leg curl",
+      "needs": [
+       "smooth_floor"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above with one heel on the towel.",
+      "each_side": true,
+      "key": "leg_curl_slide_single",
+      "level": 2,
+      "name": "Single-leg sliding leg curl",
+      "needs": [
+       "smooth_floor"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Kneel with feet hooked under a heavy sofa; lower your body forward as slowly as you can, catch with your hands.",
+      "each_side": false,
+      "key": "nordic_negative",
+      "level": 3,
+      "name": "Nordic curl, lowering only",
+      "needs": [
+       "sofa"
+      ],
+      "rep_range": [
+       3,
+       8
+      ],
+      "test_last_set": false
+     }
+    ],
+    "key": "curl",
+    "muscles": {
+     "glutes": 0.5,
+     "hamstrings": 1
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Leg curl",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Rise onto your toes, pause, lower slowly; a hand on the wall for balance.",
+      "each_side": false,
+      "key": "calf_raise",
+      "level": 1,
+      "name": "Calf raise",
+      "needs": [
+       "wall"
+      ],
+      "rep_range": [
+       10,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above on one foot.",
+      "each_side": true,
+      "key": "calf_raise_single",
+      "level": 2,
+      "name": "Single-leg calf raise",
+      "needs": [
+       "wall"
+      ],
+      "rep_range": [
+       10,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Ball of the foot on a step; drop the heel below the step, then rise all the way.",
+      "each_side": true,
+      "key": "calf_raise_step",
+      "level": 3,
+      "name": "Single-leg calf raise on a step",
+      "needs": [
+       "step"
+      ],
+      "rep_range": [
+       10,
+       20
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "calves",
+    "muscles": {
+     "calves": 1
+    },
+    "rep_range": [
+     10,
+     20
+    ],
+    "step": 1,
+    "title": "Calf raise",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "Hands close together on a table edge, elbows tucked to your sides.",
+      "each_side": false,
+      "key": "close_pushup_incline",
+      "level": 1,
+      "name": "Close incline push-up",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "On your knees, hands under your chest, elbows brushing your ribs.",
+      "each_side": false,
+      "key": "close_pushup_knee",
+      "level": 2,
+      "name": "Close knee push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Thumbs and index fingers touching under your chest; elbows back, not out.",
+      "each_side": false,
+      "key": "diamond_pushup",
+      "level": 3,
+      "name": "Diamond push-up",
+      "needs": [],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Forearms on a chair seat, body straight; lower your head below the seat by bending only the elbows, then press back.",
+      "each_side": false,
+      "key": "triceps_extension",
+      "level": 4,
+      "name": "Bodyweight triceps extension",
+      "needs": [
+       "chair"
+      ],
+      "rep_range": [
+       6,
+       15
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "triceps",
+    "muscles": {
+     "chest": 0.5,
+     "triceps": 1
+    },
+    "rep_range": [
+     6,
+     15
+    ],
+    "step": 1,
+    "title": "Close push-up",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "On elbows and knees, body straight, belly tight.",
+      "each_side": false,
+      "key": "plank_knee",
+      "level": 1,
+      "name": "Knee plank",
+      "needs": [],
+      "rep_range": [
+       20,
+       60
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "On elbows and toes, squeeze your glutes, don't let the hips sag.",
+      "each_side": false,
+      "key": "plank",
+      "level": 2,
+      "name": "Plank",
+      "needs": [],
+      "rep_range": [
+       20,
+       60
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Elbows a hand's width in front of your shoulders; much harder.",
+      "each_side": false,
+      "key": "plank_long",
+      "level": 3,
+      "name": "Long plank",
+      "needs": [],
+      "rep_range": [
+       20,
+       60
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Plank with feet on a towel; slide your body back and forth a few centimetres.",
+      "each_side": false,
+      "key": "body_saw",
+      "level": 4,
+      "name": "Body saw",
+      "needs": [
+       "smooth_floor"
+      ],
+      "rep_range": [
+       20,
+       60
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "plank",
+    "muscles": {
+     "core": 1
+    },
+    "rep_range": [
+     20,
+     60
+    ],
+    "step": 5,
+    "title": "Plank",
+    "unit": "seconds"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "On your back, arms and knees up; lower the opposite arm and leg, low back pressed down.",
+      "each_side": true,
+      "key": "dead_bug",
+      "level": 1,
+      "name": "Dead bug",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "On your back, knees bent; curl your hips off the floor towards your chest, lower slowly.",
+      "each_side": false,
+      "key": "reverse_crunch",
+      "level": 2,
+      "name": "Reverse crunch",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Legs straight, low back pressed down; lower the legs slowly, lift them back up.",
+      "each_side": false,
+      "key": "leg_raise",
+      "level": 3,
+      "name": "Lying leg raise",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "Hold a banana shape on your back and rock from shoulders to hips.",
+      "each_side": false,
+      "key": "hollow_rock",
+      "level": 4,
+      "name": "Hollow rock",
+      "needs": [],
+      "rep_range": [
+       8,
+       20
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "crunch",
+    "muscles": {
+     "core": 1
+    },
+    "rep_range": [
+     8,
+     20
+    ],
+    "step": 1,
+    "title": "Core curl",
+    "unit": "reps"
+   },
+   {
+    "exercises": [
+     {
+      "cue": "On one elbow and the side of your knee, hips lifted in line.",
+      "each_side": true,
+      "key": "side_plank_knee",
+      "level": 1,
+      "name": "Knee side plank",
+      "needs": [],
+      "rep_range": [
+       15,
+       45
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "On one elbow and the side of your foot, body in one line.",
+      "each_side": true,
+      "key": "side_plank",
+      "level": 2,
+      "name": "Side plank",
+      "needs": [],
+      "rep_range": [
+       15,
+       45
+      ],
+      "test_last_set": true
+     },
+     {
+      "cue": "As above, lift and hold the top leg.",
+      "each_side": true,
+      "key": "side_plank_leg_up",
+      "level": 3,
+      "name": "Side plank, top leg raised",
+      "needs": [],
+      "rep_range": [
+       15,
+       45
+      ],
+      "test_last_set": true
+     }
+    ],
+    "key": "side_plank",
+    "muscles": {
+     "core": 1
+    },
+    "rep_range": [
+     15,
+     45
+    ],
+    "step": 5,
+    "title": "Side plank",
+    "unit": "seconds"
+   }
+  ]
+ },
+ "report": {
+  "best_week_streak": 0,
+  "exercises": [
+   {
+    "history": [
+     {
+      "best": 16,
+      "date": "2026-10-05",
+      "level": 4
+     }
+    ],
+    "state": {
+     "each_side": false,
+     "ladder": "push",
+     "level": 4,
+     "name": "Push-up",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 15,
+     "title": "Push-up",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 8,
+      "date": "2026-10-05",
+      "level": 2
+     }
+    ],
+    "state": {
+     "each_side": false,
+     "ladder": "pike",
+     "level": 2,
+     "name": "Pike push-up",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 7,
+     "title": "Pike push-up",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 8,
+      "date": "2026-10-05",
+      "level": 1
+     }
+    ],
+    "state": {
+     "each_side": false,
+     "ladder": "row",
+     "level": 1,
+     "name": "Doorway row",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 7,
+     "title": "Row",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 8,
+      "date": "2026-10-05",
+      "level": 3
+     }
+    ],
+    "state": {
+     "each_side": true,
+     "ladder": "squat",
+     "level": 3,
+     "name": "Split squat",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 7,
+     "title": "Squat",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [],
+    "state": {
+     "each_side": true,
+     "ladder": "lunge",
+     "level": 1,
+     "name": "Reverse lunge",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 6,
+     "title": "Lunge",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 10,
+      "date": "2026-10-05",
+      "level": 2
+     }
+    ],
+    "state": {
+     "each_side": true,
+     "ladder": "hinge",
+     "level": 2,
+     "name": "Single-leg glute bridge",
+     "paused": false,
+     "rep_range": [
+      8,
+      20
+     ],
+     "target": 9,
+     "title": "Hip thrust",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [],
+    "state": {
+     "each_side": false,
+     "ladder": "curl",
+     "level": 1,
+     "name": "Sliding leg curl",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 6,
+     "title": "Leg curl",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 12,
+      "date": "2026-10-05",
+      "level": 2
+     }
+    ],
+    "state": {
+     "each_side": true,
+     "ladder": "calves",
+     "level": 2,
+     "name": "Single-leg calf raise",
+     "paused": false,
+     "rep_range": [
+      10,
+      20
+     ],
+     "target": 11,
+     "title": "Calf raise",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [],
+    "state": {
+     "each_side": false,
+     "ladder": "triceps",
+     "level": 2,
+     "name": "Close knee push-up",
+     "paused": false,
+     "rep_range": [
+      6,
+      15
+     ],
+     "target": 6,
+     "title": "Close push-up",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 22,
+      "date": "2026-10-05",
+      "level": 2
+     }
+    ],
+    "state": {
+     "each_side": false,
+     "ladder": "plank",
+     "level": 2,
+     "name": "Plank",
+     "paused": false,
+     "rep_range": [
+      20,
+      60
+     ],
+     "target": 25,
+     "title": "Plank",
+     "unit": "seconds"
+    }
+   },
+   {
+    "history": [
+     {
+      "best": 10,
+      "date": "2026-10-05",
+      "level": 2
+     }
+    ],
+    "state": {
+     "each_side": false,
+     "ladder": "crunch",
+     "level": 2,
+     "name": "Reverse crunch",
+     "paused": false,
+     "rep_range": [
+      8,
+      20
+     ],
+     "target": 9,
+     "title": "Core curl",
+     "unit": "reps"
+    }
+   },
+   {
+    "history": [],
+    "state": {
+     "each_side": true,
+     "ladder": "side_plank",
+     "level": 2,
+     "name": "Side plank",
+     "paused": false,
+     "rep_range": [
+      15,
+      45
+     ],
+     "target": 15,
+     "title": "Side plank",
+     "unit": "seconds"
+    }
+   }
+  ],
+  "minutes": 30,
+  "muscles": [
+   {
+    "muscle": "chest",
+    "sets": 3.0
+   },
+   {
+    "muscle": "back",
+    "sets": 3.0
+   },
+   {
+    "muscle": "shoulders",
+    "sets": 4.5
+   },
+   {
+    "muscle": "triceps",
+    "sets": 3.0
+   },
+   {
+    "muscle": "biceps",
+    "sets": 1.5
+   },
+   {
+    "muscle": "quads",
+    "sets": 2.0
+   },
+   {
+    "muscle": "glutes",
+    "sets": 3.0
+   },
+   {
+    "muscle": "hamstrings",
+    "sets": 1.0
+   },
+   {
+    "muscle": "calves",
+    "sets": 1.0
+   },
+   {
+    "muscle": "core",
+    "sets": 2.0
+   }
+  ],
+  "sessions_done": 1,
+  "sessions_planned": 3,
+  "sets_done": 16,
+  "target_band": [
+   10,
+   20
+  ],
+  "waists": [],
+  "week_start": "2026-10-05",
+  "week_streak": 0,
+  "weekly_weight_change_pct": null,
+  "weeks": [
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-08-17"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-08-24"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-08-31"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-09-07"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-09-14"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-09-21"
+   },
+   {
+    "sessions": 0,
+    "sets": 0,
+    "week_start": "2026-09-28"
+   },
+   {
+    "sessions": 1,
+    "sets": 16,
+    "week_start": "2026-10-05"
+   }
+  ],
+  "weights": []
+ },
+ "session": {
+  "completed_at": null,
+  "date": "2026-10-05",
+  "engine_version": "0.1.0",
+  "goal": "muscle",
+  "minutes": 30,
+  "payload": {
+   "circuit": null,
+   "goal": "muscle",
+   "light": false,
+   "minutes": 30,
+   "note": "4 pairs, 16 sets. Rest 60 s between sets in a pair.",
+   "notes": [],
+   "pairs": [
+    [
+     {
+      "cue": "Hands under shoulders, body straight; lower for 2-3 seconds, chest to the floor.",
+      "each_side": false,
+      "key": "pushup_full",
+      "ladder": "push",
+      "level": 4,
+      "name": "Push-up",
+      "rep_range": [
+       6,
+       15
+      ],
+      "rest_s": 60,
+      "sets": 3,
+      "target": 14,
+      "test_last_set": true,
+      "unit": "reps"
+     },
+     {
+      "cue": "Hold both sides of a door frame, lean back with straight arms, pull your chest to the frame.",
+      "each_side": false,
+      "key": "row_doorway",
+      "ladder": "row",
+      "level": 1,
+      "name": "Doorway row",
+      "rep_range": [
+       6,
+       15
+      ],
+      "rest_s": 60,
+      "sets": 3,
+      "target": 6,
+      "test_last_set": true,
+      "unit": "reps"
+     }
+    ],
+    [
+     {
+      "cue": "Long stride, lower the back knee towards the floor, front heel down.",
+      "each_side": true,
+      "key": "split_squat",
+      "ladder": "squat",
+      "level": 3,
+      "name": "Split squat",
+      "rep_range": [
+       6,
+       15
+      ],
+      "rest_s": 60,
+      "sets": 2,
+      "target": 6,
+      "test_last_set": true,
+      "unit": "reps"
+     },
+     {
+      "cue": "On your back, knees bent; curl your hips off the floor towards your chest, lower slowly.",
+      "each_side": false,
+      "key": "reverse_crunch",
+      "ladder": "crunch",
+      "level": 2,
+      "name": "Reverse crunch",
+      "rep_range": [
+       8,
+       20
+      ],
+      "rest_s": 60,
+      "sets": 1,
+      "target": 8,
+      "test_last_set": true,
+      "unit": "reps"
+     }
+    ],
+    [
+     {
+      "cue": "As above on one leg, the other knee pulled in.",
+      "each_side": true,
+      "key": "glute_bridge_single",
+      "ladder": "hinge",
+      "level": 2,
+      "name": "Single-leg glute bridge",
+      "rep_range": [
+       8,
+       20
+      ],
+      "rest_s": 60,
+      "sets": 2,
+      "target": 8,
+      "test_last_set": true,
+      "unit": "reps"
+     },
+     {
+      "cue": "As above on one foot.",
+      "each_side": true,
+      "key": "calf_raise_single",
+      "ladder": "calves",
+      "level": 2,
+      "name": "Single-leg calf raise",
+      "rep_range": [
+       10,
+       20
+      ],
+      "rest_s": 60,
+      "sets": 1,
+      "target": 10,
+      "test_last_set": true,
+      "unit": "reps"
+     }
+    ],
+    [
+     {
+      "cue": "Hips high in an upside-down V; lower your head towards the floor in front of your hands.",
+      "each_side": false,
+      "key": "pike_floor",
+      "ladder": "pike",
+      "level": 2,
+      "name": "Pike push-up",
+      "rep_range": [
+       6,
+       15
+      ],
+      "rest_s": 60,
+      "sets": 3,
+      "target": 6,
+      "test_last_set": true,
+      "unit": "reps"
+     },
+     {
+      "cue": "On elbows and toes, squeeze your glutes, don't let the hips sag.",
+      "each_side": false,
+      "key": "plank",
+      "ladder": "plank",
+      "level": 2,
+      "name": "Plank",
+      "rep_range": [
+       20,
+       60
+      ],
+      "rest_s": 60,
+      "sets": 1,
+      "target": 20,
+      "test_last_set": true,
+      "unit": "seconds"
+     }
+    ]
+   ],
+   "template": "A",
+   "title": "Full body A",
+   "total_sets": 16,
+   "warmup_s": 180
+  },
+  "readiness": null,
+  "summary": null,
+  "template": "A",
+  "volume_step": 0
+ },
+ "settings": {
+  "available": [
+   "chair",
+   "doorway",
+   "smooth_floor",
+   "wall"
+  ],
+  "days_per_week": 3,
+  "goal": "muscle",
+  "high_impact": false,
+  "mode": "sessions",
+  "session_minutes": 30,
+  "updated_at": "2026-10-05T02:10:00Z",
+  "weekdays": [
+   0,
+   2,
+   4
+  ]
+ },
+ "states": [
+  {
+   "each_side": false,
+   "ladder": "push",
+   "level": 4,
+   "name": "Push-up",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 15,
+   "title": "Push-up",
+   "unit": "reps"
+  },
+  {
+   "each_side": false,
+   "ladder": "pike",
+   "level": 2,
+   "name": "Pike push-up",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 7,
+   "title": "Pike push-up",
+   "unit": "reps"
+  },
+  {
+   "each_side": false,
+   "ladder": "row",
+   "level": 1,
+   "name": "Doorway row",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 7,
+   "title": "Row",
+   "unit": "reps"
+  },
+  {
+   "each_side": true,
+   "ladder": "squat",
+   "level": 3,
+   "name": "Split squat",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 7,
+   "title": "Squat",
+   "unit": "reps"
+  },
+  {
+   "each_side": true,
+   "ladder": "lunge",
+   "level": 1,
+   "name": "Reverse lunge",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 6,
+   "title": "Lunge",
+   "unit": "reps"
+  },
+  {
+   "each_side": true,
+   "ladder": "hinge",
+   "level": 2,
+   "name": "Single-leg glute bridge",
+   "paused": false,
+   "rep_range": [
+    8,
+    20
+   ],
+   "target": 9,
+   "title": "Hip thrust",
+   "unit": "reps"
+  },
+  {
+   "each_side": false,
+   "ladder": "curl",
+   "level": 1,
+   "name": "Sliding leg curl",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 6,
+   "title": "Leg curl",
+   "unit": "reps"
+  },
+  {
+   "each_side": true,
+   "ladder": "calves",
+   "level": 2,
+   "name": "Single-leg calf raise",
+   "paused": false,
+   "rep_range": [
+    10,
+    20
+   ],
+   "target": 11,
+   "title": "Calf raise",
+   "unit": "reps"
+  },
+  {
+   "each_side": false,
+   "ladder": "triceps",
+   "level": 2,
+   "name": "Close knee push-up",
+   "paused": false,
+   "rep_range": [
+    6,
+    15
+   ],
+   "target": 6,
+   "title": "Close push-up",
+   "unit": "reps"
+  },
+  {
+   "each_side": false,
+   "ladder": "plank",
+   "level": 2,
+   "name": "Plank",
+   "paused": false,
+   "rep_range": [
+    20,
+    60
+   ],
+   "target": 25,
+   "title": "Plank",
+   "unit": "seconds"
+  },
+  {
+   "each_side": false,
+   "ladder": "crunch",
+   "level": 2,
+   "name": "Reverse crunch",
+   "paused": false,
+   "rep_range": [
+    8,
+    20
+   ],
+   "target": 9,
+   "title": "Core curl",
+   "unit": "reps"
+  },
+  {
+   "each_side": true,
+   "ladder": "side_plank",
+   "level": 2,
+   "name": "Side plank",
+   "paused": false,
+   "rep_range": [
+    15,
+    45
+   ],
+   "target": 15,
+   "title": "Side plank",
+   "unit": "seconds"
+  }
+ ],
+ "summary": {
+  "circuit_note": null,
+  "date": "2026-10-05",
+  "finished": true,
+  "sets_done": 16,
+  "steps": [
+   {
+    "decision": "up_reps",
+    "ladder": "push",
+    "note": "Push-up: all sets felt good, so next time it's push-up, 15 reps."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "row",
+    "note": "Doorway row: all sets felt good, so next time it's doorway row, 7 reps."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "squat",
+    "note": "Split squat: all sets felt good, so next time it's split squat, 7 reps each side."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "crunch",
+    "note": "Reverse crunch: all sets felt good, so next time it's reverse crunch, 9 reps."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "hinge",
+    "note": "Single-leg glute bridge: all sets felt good, so next time it's single-leg glute bridge, 9 reps each side."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "calves",
+    "note": "Single-leg calf raise: all sets felt good, so next time it's single-leg calf raise, 11 reps each side."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "pike",
+    "note": "Pike push-up: all sets felt good, so next time it's pike push-up, 7 reps."
+   },
+   {
+    "decision": "up_reps",
+    "ladder": "plank",
+    "note": "Plank: all sets felt good, so next time it's plank, 25 s."
+   }
+  ]
+ }
+}

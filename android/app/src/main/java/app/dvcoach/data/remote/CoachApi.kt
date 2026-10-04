@@ -63,6 +63,38 @@ interface CoachApi {
     @GET("v1/progress")
     suspend fun progress(@Query("exercise") exercise: String = "pushup", @Query("days") days: Int = 56): ProgressDto
 
+    // Session mode: see server/app/routers/sessions.py.
+
+    @GET("v1/exercises")
+    suspend fun exerciseLibrary(): LibraryDto
+
+    @GET("v1/session-settings")
+    suspend fun sessionSettings(): SessionSettingsDto
+
+    @PUT("v1/session-settings")
+    suspend fun saveSessionSettings(@Body body: SessionSettingsDto): SessionSettingsDto
+
+    @GET("v1/exercise-states")
+    suspend fun exerciseStates(): List<ExerciseStateDto>
+
+    @PUT("v1/exercise-states/{ladder}")
+    suspend fun changeExerciseState(@Path("ladder") ladder: String, @Body body: ExerciseStateChangeDto): ExerciseStateDto
+
+    @POST("v1/sessions")
+    suspend fun startSession(@Body body: SessionStartDto): SessionDto
+
+    @GET("v1/sessions/{day}")
+    suspend fun session(@Path("day") day: String): SessionDto
+
+    @POST("v1/session-logs/batch")
+    suspend fun uploadSessionLogs(@Body body: SessionLogBatchDto): SetLogBatchResultDto
+
+    @POST("v1/sessions/{day}/complete")
+    suspend fun completeSession(@Path("day") day: String, @Body body: SessionCompleteDto): SessionSummaryDto
+
+    @GET("v1/report")
+    suspend fun report(@Query("weeks") weeks: Int = 8): ReportDto
+
     @DELETE("v1/me")
     suspend fun deleteAccount(): Response<Unit>
 

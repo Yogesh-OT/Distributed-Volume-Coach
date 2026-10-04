@@ -1,5 +1,7 @@
 import datetime as dt
+import json
 import uuid
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -164,6 +166,24 @@ def test_report(c, clock):
     # Test sets reach target + 2: 16, then 17 at the top of the range, which moves up to decline push-ups.
     assert [(h["level"], h["best"]) for h in push["history"]] == [(4, 16), (4, 17), (5, 8)]
     assert report["weights"][0]["weight_kg"] == 70 and report["waists"][0]["waist_cm"] == 80
+
+
+def test_write_samples_for_the_phone(c, clock):
+    """Saves real responses to shared/session_samples.json. The Android SessionDtosTest
+    decodes them, so a field renamed on either side fails a test."""
+    settings = setup(c)
+    session = start(c, MONDAY).json()
+    summary = do_everything(c, MONDAY, session)
+    samples = {
+        "settings": settings,
+        "states": c.get("/v1/exercise-states", headers=ALICE).json(),
+        "session": session,
+        "summary": summary,
+        "report": c.get("/v1/report", headers=ALICE).json(),
+        "library": c.get("/v1/exercises").json(),
+    }
+    path = Path(__file__).resolve().parents[2] / "shared" / "session_samples.json"
+    path.write_text(json.dumps(samples, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
 def test_coming_back_after_a_break(c, clock):
