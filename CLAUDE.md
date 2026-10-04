@@ -118,8 +118,12 @@ See `docs/ux-references.md`.
    - Steps: the 07:15 check-in reminder, check in with the server running, then use the notification's **Hard** and **Snooze** buttons during the day.
    - Check in once with the server off, to test the offline fallback plan.
    - Already verified: exact reminders, the notification's Done button with the app closed, offline logging and later sync, Pain ending the day, reset today, the update over the old app, and Room migration 1 → 2.
-3. **Then the rest of phase 2.** Weekly progression and the max-test-due card are done (session 3):
+3. **Session mode and the AI coach.**
+   - The proposal is in `docs/session-mode-and-coach.md`, based on a second walk-through of Home Workout (findings in `docs/ux-references.md`).
+   - It waits for the user's go-ahead and two answers: back exercises without equipment, and the days and session lengths offered.
+   - The build order is in the proposal: engine → API → Android player → coach.
+4. **Then the rest of phase 2.** Weekly progression and the max-test-due card are done (session 3):
    - The Hard-set model with the simulator.
    - Health Connect sleep.
    - Pull-ups.
-   - A "Why this plan" screen.
+   - A "Why this plan" screen, which the coach may cover.

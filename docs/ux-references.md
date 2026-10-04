@@ -26,6 +26,25 @@ Looked at on a phone: the Training, Discover, Report and Settings tabs, a workou
 - Aspirational body photos and claims like "lose belly fat fast".
 - Calorie estimates.
 
+### Second look (2026-10-04): sessions, rest and plan changes
+
+This time the focus was on how a workout session runs and how the app adapts, for the new session mode (see `docs/session-mode-and-coach.md`).
+
+| Pattern | What it does | Use in DV Coach |
+|---|---|---|
+| Rest screen | A countdown (30 s by default), **+20s** and **Skip**, "Edit rest time", and a preview of the next exercise ("Next 11/16 ×20") | Keep the layout. Rest length comes from the goal: 60–90 s for muscle sets, with a one-line reason. |
+| Rest and prep timers | Set in *Workout settings*: rest up to about 60 s, a 10–15 s "get ready" countdown | A get-ready countdown, yes. A rest limit near 60 s, no: for muscle growth, more than 60 s works a little better. |
+| Reps or time per exercise | A big "×20" with a ✓, "Each side ×10", and a Reps mode / Time mode switch | Reps for strength moves, time only for holds such as planks. After each set, log the reps done and how hard it was. |
+| Exercise info | Video / Muscle / How-to tabs, a front and back muscle map, focus chips, common mistakes | Extend the push-up guide to every exercise. We write the text ourselves. |
+| Quitting a workout | Asks why: "Just take a look", "Too hard", "Don't know how to do it" | Ask why, and act on it: Too hard → offer an easier level; Don't know how → open the how-to; Pain → stop and hide that exercise. |
+| Resuming | "Continue · 63% completed" or Restart | Resume a session that was left part-way. |
+| Plan adjust | An **Adjust** button opens "Your coach is busy working for you…", a staged loading screen ("Rescheduling week 1 of 4…"), then an ad, then "A new and easier 28-day plan is ready" with a **Before → After** table for day 1 and "No, I'd prefer my previous plan" | Keep the before/after table and the "keep my plan" choice. Drop the fake loading screen and the ad. Our change comes from the engine and logged sets, with the reason in one line. |
+| Custom workouts | Create your own: choose from 369 exercises by name, every one 20 s by default, reorder, swap, +/− time, name it | Later, if at all. The coach should build the session for you, because most people don't know what to pick. |
+| Home and Discover | Weekly goal, a challenge carousel, body-focus chips, filters by length, "Last time: Today" | Today shows the next session and the week. A "last time" note helps beat your previous numbers. |
+| Workout settings | Gender, music, rest timer, prep timer, sound (voice guide, coach tips, effects), restart progress | Sound and voice cues later, using Android's on-device text-to-speech. |
+
+**Also not to copy:** the "coach" is a stock photo with canned messages; "Height increase" programs; "lose belly fat" spot-reduction claims; time-only sets for strength moves, which can't show progress in reps. Searching "cus" didn't find "Create your own".
+
 ## Other apps
 
 - **[Grease the Groove](https://apps.apple.com/us/app/id1497802037)** (iOS) is the closest competitor.
