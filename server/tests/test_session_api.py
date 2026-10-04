@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
-from tests.test_api import ALICE, ONBOARDING, PROFILE, Clock
+from test_api import ALICE, ONBOARDING, PROFILE, Clock
 
 MONDAY = dt.date(2026, 10, 5)
 SETTINGS = {"goal": "muscle", "days_per_week": 3, "session_minutes": 30}
