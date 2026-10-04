@@ -145,7 +145,8 @@ See `docs/ux-references.md`.
 3. **Session mode, step 3: Android.** The server API is done, and so is the phone's network layer:
    `data/remote/SessionDtos.kt`, ten `CoachApi` calls, and `SessionDtosTest`, which decodes the real responses in `shared/session_samples.json`.
    `tests/test_session_api.py` rewrites that file on every run. Next on the phone:
-   - onboarding for mode and goal (`PUT /v1/session-settings`)
+   - Done: *Settings → Workouts → Set up workouts* (`ui/WorkoutSettingsScreen.kt`) saves the goal, days, length, items at home and impact with `PUT /v1/session-settings`. It compiles in CI but hasn't been opened on the phone yet.
+   - Still to do: offer it during onboarding too.
    - a session card on Today
    - the session player: get-ready countdown, set screen, effort buttons, rest timer in a foreground service, quit reasons
    - the summary, how-to from `GET /v1/exercises`, and the report screen
